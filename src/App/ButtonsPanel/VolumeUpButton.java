@@ -12,7 +12,7 @@ public class VolumeUpButton extends AbstractButton{
     {
         super(mediaPlayer);
         setIcon(new ImageIcon("images/volume_up.png"));
-        setBounds(425, 40, 33, 60);
+        setBounds(425, 15, 33, 60);
         addListeners();
     }
 

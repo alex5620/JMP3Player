@@ -3,6 +3,7 @@
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/jaco-mp3-player-0.9.3.jar!/" />
       <root url="jar://$PROJECT_DIR$/jaudiotagger-2.0.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/jmf-2.1.1e.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

@@ -10,7 +10,7 @@ public class StopButton extends AbstractButton{
     public StopButton(JMediaPlayer mediaPlayer)
     {
         super(mediaPlayer);
-        setBounds(250, 40, 56, 60);
+        setBounds(250, 15, 56, 60);
         setIcon(new ImageIcon("images/stop.png"));
         addListeners();
     }
@@ -23,6 +23,7 @@ public class StopButton extends AbstractButton{
             public void mousePressed(MouseEvent e) {
                 setIcon(new ImageIcon("images/stop_pressed.png"));
                 mediaPlayer.getPlayer().stop();
+                mediaPlayer.songNameToCenter();
             }
             @Override
             public void mouseReleased(MouseEvent e) {

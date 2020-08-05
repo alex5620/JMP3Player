@@ -3,55 +3,50 @@ package App;
 import App.ButtonsPanel.ButtonsPanel;
 import App.HeaderPanel.HeaderPanel;
 import App.SongNamePanel.SongNamePanel;
-import jaco.mp3.player.MP3Player;
-import org.jaudiotagger.audio.AudioFile;
-import org.jaudiotagger.audio.AudioFileIO;
+import App.TimePanel.TimePanel;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.io.File;
-import java.nio.file.Paths;
 
 
 public class JMediaPlayer {
     private JFrame frame;
     private HeaderPanel headerPanel;
     private SongNamePanel songNamePanel;
+    private TimePanel timePanel;
     private ButtonsPanel buttonsPanel;
 
-    private MP3Player player;
-    //	private MediaPlayer player;
+    private MediaPlayer player;
     private File songFile;
     private String currentDirectory="home.user";
-    private String currentPath;
     boolean repeat = false;
+    boolean paused = false;
     boolean windowCollapsed=false;
 
-    public JMediaPlayer(String title) {
-        initFrame();
-        initPanels(title);
-        songFile=new File("E:\\Muzica\\02 - Satra I.mp3");
-        String fileName=songFile.getName();
-        player= createMP3Player();
+    public void createPlayer()
+    {
+        Media media = new Media(songFile.toURI().toString());
+        player = new MediaPlayer(media);
+        player.getStatus();
+    }
 
-        player.addToPlayList(songFile);
-        currentPath=Paths.get(".").toAbsolutePath().normalize().toString();
-        try
-        {
-            int duration=0;
-            AudioFile audioFile = AudioFileIO.read(songFile);
-            duration= audioFile.getAudioHeader().getTrackLength();
-            System.out.print("time in seconds= "+duration);
-        }catch(Exception e){
-        }
+    public JMediaPlayer(String title) {
+        com.sun.javafx.application.PlatformImpl.startup(()->{});//just to be able to use javafx
+        initFrame();
+        songFile=new File("E:\\Muzica\\04 Ca moldoveaqnca nu-i nimeni.mp3");
+        initPanels(title);
+        createPlayer();
     }
 
     private void initFrame()
     {
         frame = new JFrame();
         frame.setResizable(false);
-        frame.setBounds(100, 100, 550, 216);
+        frame.setBounds(100, 100, 550, 246);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocationRelativeTo(null);
         frame.setUndecorated(true);
@@ -63,8 +58,10 @@ public class JMediaPlayer {
     {
         headerPanel = new HeaderPanel(this, title);
         frame.getContentPane().add(headerPanel);
-        songNamePanel = new SongNamePanel();
+        songNamePanel = new SongNamePanel(songFile.getName());
         frame.getContentPane().add(songNamePanel);
+        timePanel = new TimePanel(this);
+        frame.getContentPane().add(timePanel);
         buttonsPanel = new ButtonsPanel(this);
         frame.getContentPane().add(buttonsPanel);
     }
@@ -79,26 +76,44 @@ public class JMediaPlayer {
         songNamePanel.stopMovingText();
     }
 
-    private MP3Player createMP3Player()
+    public void songNameToCenter()
     {
-        MP3Player mp3player= new MP3Player();
-        return mp3player;
+        songNamePanel.songNameToCenter();
     }
 
-    public MP3Player getPlayer()
+    public void songNameToBeginning()
+    {
+        songNamePanel.songNameToBeginning();
+    }
+
+    public MediaPlayer getPlayer()
     {
         return player;
     }
 
     public void setRepeat(boolean repeat)
     {
-        this.repeat=repeat;
-        player.setRepeat(repeat);
+        if(repeat==true) {
+            this.repeat = repeat;
+            player.setStartTime(player.getCurrentTime());
+            player.setAutoPlay(true);
+            player.setCycleCount(MediaPlayer.INDEFINITE);
+            player.play();
+        }
+        else
+        {
+            player.setAutoPlay(false);
+        }
     }
 
     public void setSongFile(File songFile)
     {
         this.songFile = songFile;
+    }
+
+    public void setPaused(boolean paused)
+    {
+        this.paused=paused;
     }
 
     public void updateSongName()
@@ -133,6 +148,21 @@ public class JMediaPlayer {
     public boolean isRepeating()
     {
         return repeat;
+    }
+
+    public boolean isPaused()
+    {
+        return paused;
+    }
+
+    public void setSongTime()
+    {
+        timePanel.setMaxTime();
+    }
+
+    public void setjSliderMaxValue()
+    {
+        timePanel.setjSliderMaxValue();
     }
 }
 

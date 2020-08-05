@@ -11,7 +11,7 @@ public class VolumeDownButton extends AbstractButton{
     public VolumeDownButton(JMediaPlayer mediaPlayer)
     {
         super(mediaPlayer);
-        setBounds(390, 40, 33, 60);
+        setBounds(390, 15, 33, 60);
         setIcon(new ImageIcon("images/volume_down.png"));
         addListeners();
     }

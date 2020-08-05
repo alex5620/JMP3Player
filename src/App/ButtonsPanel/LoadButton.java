@@ -13,7 +13,7 @@ public class LoadButton extends AbstractButton {
     public LoadButton(JMediaPlayer mediaPlayer)
     {
         super(mediaPlayer);
-        setBounds(320, 40, 62, 60);
+        setBounds(320, 15, 62, 60);
         setIcon(new ImageIcon("images/open.png"));
         addListeners();
     }
@@ -30,12 +30,13 @@ public class LoadButton extends AbstractButton {
                 int result = openFileChooser.showOpenDialog(null);
                 if(result == JFileChooser.APPROVE_OPTION)
                 {
+                    mediaPlayer.getPlayer().stop();
                     File songFile = openFileChooser.getSelectedFile();
                     mediaPlayer.setSongFile(songFile);
-                    mediaPlayer.getPlayer().addToPlayList(songFile);
-                    mediaPlayer.getPlayer().skipForward();
                     mediaPlayer.updateCurrentDirectory(songFile.getAbsolutePath());
                     mediaPlayer.updateSongName();
+                    mediaPlayer.createPlayer();
+                    mediaPlayer.getPlayer().play();
                 }
                 setIcon(new ImageIcon("images/open.png"));
             }

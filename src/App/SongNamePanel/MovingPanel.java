@@ -1,19 +1,25 @@
 package App.SongNamePanel;
 
+import App.JMediaPlayer;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.font.FontRenderContext;
+import java.awt.geom.AffineTransform;
 
 public class MovingPanel extends JPanel implements ActionListener{
     private static int RATE = 16;
-    private Timer timer = new Timer(1000/RATE, (ActionListener)this);
+    private Timer timer = new Timer(1000/RATE, this);
     private String songText;
-    private int index=0;
+    private int index;
 
-    public MovingPanel()
+    public MovingPanel(String startingSongName)
     {
-        songText = "someText";
+        songText = startingSongName;
+        index = 255 - (songText.length()*6) / 2;
+        // jumatatea panelului
     }
 
     public void paint(Graphics g)
@@ -29,6 +35,7 @@ public class MovingPanel extends JPanel implements ActionListener{
         }
     }
 
+    @Override
     public void actionPerformed(ActionEvent e)
     {
         repaint();
@@ -47,5 +54,25 @@ public class MovingPanel extends JPanel implements ActionListener{
     public void stop()
     {
         timer.stop();
+    }
+
+    public void textToCenter()
+    {
+        try {
+            AffineTransform affinetransform = new AffineTransform();
+            FontRenderContext frc = new FontRenderContext(affinetransform, true, true);
+            int textwidth = (int) (getGraphics().getFont().getStringBounds(songText, frc).getWidth());
+            index = getWidth() / 2 - textwidth / 2;
+            repaint();
+            stop();
+        }catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    public void textToBeginning()
+    {
+        index=10;
     }
 }

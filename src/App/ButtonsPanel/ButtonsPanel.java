@@ -20,7 +20,8 @@ public class ButtonsPanel extends JPanel{
     public ButtonsPanel(JMediaPlayer mediaPlayer)
     {
         this.mediaPlayer = mediaPlayer;
-        setBounds(0, 94, 550, 120);
+//        setBounds(0, 94, 550, 150);
+        setBounds(0, 154, 550, 90);
         setBackground(new Color(7,63,86));
         setLayout(null);
         createButtons();

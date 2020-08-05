@@ -10,7 +10,7 @@ public class RepeatButton extends AbstractButton{
     public RepeatButton(JMediaPlayer mediaPlayer)
     {
         super(mediaPlayer);
-        setBounds(0, 30, 83, 79);
+        setBounds(0, 5, 83, 79);
         setIcon(new ImageIcon("images/repeat.png"));
         addListeners();
     }

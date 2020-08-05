@@ -11,7 +11,7 @@ public class MaxVolumeButton extends AbstractButton {
     {
         super(mediaPlayer);
         setIcon(new ImageIcon("images/volume_full.png"));
-        setBounds(465, 40, 46, 60);
+        setBounds(465, 15, 46, 60);
         addListeners();
     }
 

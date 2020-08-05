@@ -11,7 +11,7 @@ public class MuteButton extends AbstractButton{
     {
         super(mediaPlayer);
         setIcon(new ImageIcon("images/mute.png"));
-        setBounds(505, 40, 46, 60);
+        setBounds(505, 15, 46, 60);
         addListeners();
     }
 

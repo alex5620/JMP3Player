@@ -7,14 +7,13 @@ import java.awt.*;
 public class SongNamePanel extends JPanel{
     private JPanel borderPanel;
     private MovingPanel textPanel;
-    public SongNamePanel()
+    public SongNamePanel(String startingSongName)
     {
         setBounds(0, 44, 550, 50);
         setBackground(new Color(7,63,86));
         setLayout(null);
-        initTextPanel();
+        initTextPanel(startingSongName);
         initBorderPanel();
-        textPanel.start();
     }
 
     private void initBorderPanel()
@@ -26,9 +25,9 @@ public class SongNamePanel extends JPanel{
         add(borderPanel);
     }
 
-    private void initTextPanel()
+    private void initTextPanel(String startingSongName)
     {
-        textPanel = new MovingPanel();
+        textPanel = new MovingPanel(startingSongName);
         textPanel.setBackground(new Color(7,63,86));
         textPanel.setBounds(15, 8, 510, 34);
         textPanel.setOpaque(false);
@@ -45,5 +44,15 @@ public class SongNamePanel extends JPanel{
     public void stopMovingText()
     {
         textPanel.stop();
+    }
+
+    public void songNameToCenter()
+    {
+        textPanel.textToCenter();
+    }
+
+    public void songNameToBeginning()
+    {
+        textPanel.textToBeginning();
     }
 }
