@@ -1,7 +1,9 @@
 package App;
 
 import App.ButtonsPanel.ButtonsPanel;
+import App.CardPanel.CardPanel;
 import App.HeaderPanel.HeaderPanel;
+import App.MenuPanel.MenuPanel;
 import App.SongNamePanel.SongNamePanel;
 import App.TimePanel.TimePanel;
 import javafx.scene.media.Media;
@@ -19,6 +21,8 @@ public class JMediaPlayer {
     private SongNamePanel songNamePanel;
     private TimePanel timePanel;
     private ButtonsPanel buttonsPanel;
+    private MenuPanel menuPanel;
+    private CardPanel cardPanel;
 
     private MediaPlayer player;
     private File songFile;
@@ -37,7 +41,7 @@ public class JMediaPlayer {
     public JMediaPlayer(String title) {
         com.sun.javafx.application.PlatformImpl.startup(()->{});//just to be able to use javafx
         initFrame();
-        songFile=new File("E:\\Muzica\\04 Ca moldoveaqnca nu-i nimeni.mp3");
+        songFile=new File("E:\\Muzica\\Demis Roussos - My Friend The Wind.mp3");
         initPanels(title);
         createPlayer();
     }
@@ -46,7 +50,7 @@ public class JMediaPlayer {
     {
         frame = new JFrame();
         frame.setResizable(false);
-        frame.setBounds(100, 100, 550, 246);
+        frame.setBounds(100, 100, 550, 650);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocationRelativeTo(null);
         frame.setUndecorated(true);
@@ -64,6 +68,10 @@ public class JMediaPlayer {
         frame.getContentPane().add(timePanel);
         buttonsPanel = new ButtonsPanel(this);
         frame.getContentPane().add(buttonsPanel);
+        menuPanel = new MenuPanel(this);
+        frame.getContentPane().add(menuPanel);
+        cardPanel = new CardPanel(this);
+        frame.getContentPane().add(cardPanel);
     }
 
     public void makeVisible()
@@ -163,6 +171,11 @@ public class JMediaPlayer {
     public void setjSliderMaxValue()
     {
         timePanel.setjSliderMaxValue();
+    }
+
+    public CardPanel getCardPanel()
+    {
+        return cardPanel;
     }
 }
 

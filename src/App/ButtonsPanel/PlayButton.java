@@ -2,9 +2,12 @@ package App.ButtonsPanel;
 
 import App.JMediaPlayer;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
 import javax.swing.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 
 public class PlayButton extends AbstractButton {
     public PlayButton(JMediaPlayer mediaPlayer)
@@ -31,6 +34,17 @@ public class PlayButton extends AbstractButton {
                 mediaPlayer.setPaused(false);
                 mediaPlayer.setSongTime();
                 mediaPlayer.setjSliderMaxValue();
+                /////////////////////
+                try {
+                    File file = new File("E:\\Muzica\\Demis Roussos - My Friend The Wind.mp3");
+                    AudioInputStream audioInputStream
+                            = AudioSystem.getAudioInputStream(file);
+                    mediaPlayer.getCardPanel().play(audioInputStream);
+                }catch (Exception er)
+                {
+                    er.printStackTrace();
+                }
+                /////////////////////
             }
             @Override
             public void mouseReleased(MouseEvent e) {

@@ -4,6 +4,7 @@ import App.JMediaPlayer;
 import javafx.util.Duration;
 
 import javax.swing.*;
+import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
@@ -52,17 +53,16 @@ public class TimePanel extends JPanel implements ActionListener {
     {
         jSlider = new JSlider();
         jSlider.setBounds(58, 15, 430, 26);
-        jSlider.setBackground(new Color(7,63,86));
-        jSlider.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                if (mousePressed) {
-                    int currentJSliderState = jSlider.getValue();
-                    double currentSongState = mediaPlayer.getPlayer().getCurrentTime().toSeconds();
-                    double difference = currentJSliderState - currentSongState;
-                    System.out.println("difference: "+difference);
-                    mediaPlayer.getPlayer().seek(mediaPlayer.getPlayer().getCurrentTime().add(new Duration(difference*1000)));
-                }
+        jSlider.setValue(0);
+        jSlider.setOpaque(false);
+        jSlider.setUI(new CustomizedSliderUI(jSlider, 16, 3));
+        jSlider.addChangeListener(e -> {
+            if (mousePressed) {
+                int currentJSliderState = jSlider.getValue();
+                double currentSongState = mediaPlayer.getPlayer().getCurrentTime().toSeconds();
+                double difference = currentJSliderState - currentSongState;
+                System.out.println("difference: " + difference);
+                mediaPlayer.getPlayer().seek(mediaPlayer.getPlayer().getCurrentTime().add(new Duration(difference * 1000)));
             }
         });
         jSlider.addMouseListener(new MouseAdapter() {
@@ -77,8 +77,6 @@ public class TimePanel extends JPanel implements ActionListener {
             }
         });
         add(jSlider);
-//        UIDefaults defaults = UIManager.getDefaults();
-//        defaults.put("Slider.altTrackColor", Color.RED);
     }
 
     @Override

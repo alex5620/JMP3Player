@@ -1,6 +1,7 @@
 package App.HeaderPanel;
 
 import App.JMediaPlayer;
+import jaco.mp3.a.A;
 import javafx.util.Duration;
 
 import javax.swing.*;
@@ -9,6 +10,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
+import App.ButtonsPanel.AbstractButton;
 
 public class HeaderPanel extends JPanel{
     private JMediaPlayer mediaPlayer;
@@ -17,6 +19,7 @@ public class HeaderPanel extends JPanel{
     private JLabel settingsLabel;
     private String appName;
     private int xMouse, yMouse;
+    private JLabel someButton;
     private boolean windowCollapsed;
     public HeaderPanel(JMediaPlayer mediaPlayer, String appName)
     {
@@ -28,6 +31,16 @@ public class HeaderPanel extends JPanel{
         initAppNameLabel(appName);
         initQuitButton();
         initSettingsButton();
+        someButton = new JLabel();
+        someButton.setIcon(new ImageIcon("images/seek.png"));
+        someButton.setBounds(400, 3, 60, 40);
+        someButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                System.out.println("Yea");;
+            }
+        });
+        add(someButton);
     }
 
     private void addListeners()
