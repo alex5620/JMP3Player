@@ -2,6 +2,7 @@ package App;
 
 import App.ButtonsPanel.ButtonsPanel;
 import App.CardPanel.CardPanel;
+import App.CardPanel.PlaylistHandler;
 import App.HeaderPanel.HeaderPanel;
 import App.MenuPanel.MenuPanel;
 import App.SongNamePanel.SongNamePanel;
@@ -9,6 +10,8 @@ import App.TimePanel.TimePanel;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import java.awt.*;
@@ -23,6 +26,7 @@ public class JMediaPlayer {
     private ButtonsPanel buttonsPanel;
     private MenuPanel menuPanel;
     private CardPanel cardPanel;
+    private PlaylistDatabase database;
 
     private MediaPlayer player;
     private File songFile;
@@ -31,19 +35,65 @@ public class JMediaPlayer {
     boolean paused = false;
     boolean windowCollapsed=false;
 
+    public JMediaPlayer(String title) {
+        com.sun.javafx.application.PlatformImpl.startup(()->{});//just to be able to use javafx
+        database = new PlaylistDatabase();
+        database.initialize();
+        PlaylistHandler.getInstance().loadSongs(this);
+        initFrame();
+        SongInformation song = PlaylistHandler.getInstance().getSongsInfo().get(0);
+        songFile=new File(song.getPath()+"\\"+song.getName());
+        initPanels(title);
+        createPlayer();
+    }
+
     public void createPlayer()
     {
         Media media = new Media(songFile.toURI().toString());
         player = new MediaPlayer(media);
-        player.getStatus();
+        player.setOnEndOfMedia(()->
+        {
+            initNextSong();
+        });
     }
 
-    public JMediaPlayer(String title) {
-        com.sun.javafx.application.PlatformImpl.startup(()->{});//just to be able to use javafx
-        initFrame();
-        songFile=new File("E:\\Muzica\\Demis Roussos - My Friend The Wind.mp3");
-        initPanels(title);
-        createPlayer();
+    private void initNextSong()
+    {
+        int nextRow = cardPanel.getRowSelected()+1;
+        createPlayer(nextRow);
+//        sleepThread();
+        cardPanel.selectNextRow();
+//        initWaveform();
+        songNamePanel.songNameToBeginning();
+        songNamePanel.setSongName(PlaylistHandler.getInstance().getSongsInfo().get(nextRow).getName());
+        setSongTime();
+        setjSliderMaxValue();
+    }
+
+    public void createPlayer(int songIndex)
+    {
+        player.stop();
+        SongInformation song= PlaylistHandler.getInstance().getSongsInfo().get(songIndex);
+        String songPath = song.getPath()+"\\"+song.getName();
+        Media media = new Media(new File(songPath).toURI().toString());
+        player = new MediaPlayer(media);
+        player.play();
+        player.setOnEndOfMedia(()->
+        {
+            initNextSong();
+        });
+        reinitMediaPlayer();
+    }
+
+    public void reinitMediaPlayer()
+    {
+        sleepThread();
+        updateSongName();
+        songNameToBeginning();
+        paused=false;
+        setSongTime();
+        setjSliderMaxValue();
+        initWaveform();
     }
 
     private void initFrame()
@@ -72,6 +122,11 @@ public class JMediaPlayer {
         frame.getContentPane().add(menuPanel);
         cardPanel = new CardPanel(this);
         frame.getContentPane().add(cardPanel);
+    }
+
+    public void initWaveform()
+    {
+        cardPanel.initWaveform();
     }
 
     public void makeVisible()
@@ -126,7 +181,8 @@ public class JMediaPlayer {
 
     public void updateSongName()
     {
-        songNamePanel.setSongName(songFile.getName());
+        songNamePanel.setSongName(PlaylistHandler.getInstance().getSongsInfo().
+                get(cardPanel.getRowSelected()).getName());
     }
 
     public void updateCurrentDirectory(String currentDirectory)
@@ -173,9 +229,24 @@ public class JMediaPlayer {
         timePanel.setjSliderMaxValue();
     }
 
+    public void sleepThread()
+    {
+        try {
+            Thread.sleep(70);
+        }catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
     public CardPanel getCardPanel()
     {
         return cardPanel;
+    }
+
+    public PlaylistDatabase getDatabase()
+    {
+        return database;
     }
 }
 

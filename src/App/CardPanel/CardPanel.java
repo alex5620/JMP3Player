@@ -5,6 +5,8 @@ import App.JMediaPlayer;
 import javax.sound.sampled.AudioInputStream;
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
 public class CardPanel extends JPanel {
     private CardLayout cardLayout;
@@ -17,7 +19,7 @@ public class CardPanel extends JPanel {
         setLayout(cardLayout);
         setOpaque(true);
         playingNowPanel = new PlayingNowPanel(mediaPlayer);
-        playlistPanel = new PlaylistPanel();
+        playlistPanel = new PlaylistPanel(mediaPlayer);
         add(playlistPanel, "panel1");
         add(playingNowPanel, "panel2");
         cardLayout.show(this, "panel1");
@@ -36,5 +38,30 @@ public class CardPanel extends JPanel {
     public void play(AudioInputStream ais)
     {
         playingNowPanel.setAudioToDisplay(ais);
+    }
+
+    public void addValuesToPlaylistTable(ArrayList info)
+    {
+        playlistPanel.addValuesToTable(info);
+    }
+
+    public void selectFirstRow()
+    {
+        playlistPanel.selectFirstRow();
+    }
+
+    public void selectNextRow()
+    {
+        playlistPanel.selectNextRow();
+    }
+
+    public void initWaveform()
+    {
+        playingNowPanel.initWaveform();
+    }
+
+    public int getRowSelected()
+    {
+        return playlistPanel.getRowSelected();
     }
 }

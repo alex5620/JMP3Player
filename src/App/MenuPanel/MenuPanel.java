@@ -18,7 +18,7 @@ public class MenuPanel extends JPanel {
         this.mediaPlayer = mediaPlayer;
         setBounds(0, 244, 550, 31);
         setBackground(new Color(7,63,86));
-        setBorder(new LineBorder(new Color(7, 48, 65, 150), 1));
+//        setBorder(new LineBorder(new Color(34,202,237), 1));
         setLayout(null);
         initLabels();
     }
@@ -32,9 +32,10 @@ public class MenuPanel extends JPanel {
     private void initPlaylistLabel()
     {
         playlist= new JLabel("PLAYLIST", SwingConstants.CENTER);
-        playlist.setBounds(0, 1, 275, 29);
+        playlist.setBounds(0, 1, 274, 29);
         playlist.setBackground(new Color(7, 48, 65));
         playlist.setOpaque(true);
+        playlist.setBorder(new LineBorder(new Color(34,202,237), 1));
         playlist.setForeground(new Color(34,202,237));
         playlist.addMouseListener(new MouseAdapter() {
             @Override
@@ -49,9 +50,10 @@ public class MenuPanel extends JPanel {
     private void initPlayingNowLabel()
     {
         playingNow = new JLabel("PLAYING NOW", SwingConstants.CENTER);
-        playingNow.setBounds(275, 1, 275, 29);
+        playingNow.setBounds(273, 1, 275, 29);
         playingNow.setForeground(new Color(34,202,237));
         playingNow.setOpaque(true);
+        playingNow.setBorder(new LineBorder(new Color(34,202,237), 1));
         playingNow.setBackground(new Color(7,63,86));
         playingNow.addMouseListener(new MouseAdapter() {
             @Override

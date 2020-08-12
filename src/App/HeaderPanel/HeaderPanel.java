@@ -1,5 +1,6 @@
 package App.HeaderPanel;
 
+import App.CardPanel.PlaylistHandler;
 import App.JMediaPlayer;
 import jaco.mp3.a.A;
 import javafx.util.Duration;
@@ -111,9 +112,12 @@ public class HeaderPanel extends JPanel{
 
     private void addListenerToQuitButton()
     {
+
         quitLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
+                mediaPlayer.getDatabase().resetDatabase();
+                PlaylistHandler.getInstance().saveSongs(mediaPlayer);
                 System.exit(0);
             }
         });

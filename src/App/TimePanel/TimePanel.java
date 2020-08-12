@@ -1,5 +1,6 @@
 package App.TimePanel;
 
+import App.CardPanel.PlaylistHandler;
 import App.JMediaPlayer;
 import javafx.util.Duration;
 
@@ -106,7 +107,8 @@ public class TimePanel extends JPanel implements ActionListener {
 
     public void setMaxTime()
     {
-        maxTime.setText(getFormattedString(mediaPlayer.getPlayer().getTotalDuration()));
+        maxTime.setText(PlaylistHandler.getInstance().getSongsInfo().
+                get(mediaPlayer.getCardPanel().getRowSelected()).getTime());
     }
 
     public void setjSliderMaxValue()

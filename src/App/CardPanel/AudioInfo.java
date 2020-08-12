@@ -5,7 +5,6 @@ import App.JMediaPlayer;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.*;
 
@@ -32,7 +31,6 @@ public class AudioInfo {
         try {
             result=din.read(mybyte);
             mybyte=Arrays.copyOf(mybyte, result);
-            long time2 = System.currentTimeMillis();
         } catch (IOException e) {
             e.printStackTrace();
         }
