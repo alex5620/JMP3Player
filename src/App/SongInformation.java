@@ -3,13 +3,13 @@ package App;
 public class SongInformation {
     private String name;
     private String path;
-    private String time;
+    private int millis;
 
-    public SongInformation(String name, String path, String time)
+    public SongInformation(String name, String path, int millis)
     {
         this.name = name;
         this.path = path;
-        this.time = time;
+        this.millis = millis;
     }
 
     public String getName() {
@@ -20,7 +20,7 @@ public class SongInformation {
         return path;
     }
 
-    public String getTime() {
-        return time;
+    public int getSongMillis() {
+        return millis;
     }
 }

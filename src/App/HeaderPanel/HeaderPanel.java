@@ -2,16 +2,12 @@ package App.HeaderPanel;
 
 import App.CardPanel.PlaylistHandler;
 import App.JMediaPlayer;
-import jaco.mp3.a.A;
-import javafx.util.Duration;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
-import App.ButtonsPanel.AbstractButton;
 
 public class HeaderPanel extends JPanel{
     private JMediaPlayer mediaPlayer;
@@ -116,8 +112,12 @@ public class HeaderPanel extends JPanel{
         quitLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                mediaPlayer.getDatabase().resetDatabase();
+                mediaPlayer.getPlaylistDatabase().resetDatabase();
                 PlaylistHandler.getInstance().saveSongs(mediaPlayer);
+                int volume = mediaPlayer.getButtonsPanel().getVolumeValue();
+                int color = mediaPlayer.getCardPanel().getPlayingNowPanel().getCurrentColor();
+                mediaPlayer.getSettingsDatabaseDatabase().resetDatabase();
+                mediaPlayer.getSettingsDatabaseDatabase().saveSettings(volume, color, mediaPlayer.getCurrentDirectory());
                 System.exit(0);
             }
         });

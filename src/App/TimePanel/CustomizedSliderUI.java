@@ -53,4 +53,13 @@ public class CustomizedSliderUI extends BasicSliderUI {
         g2d.setColor(new Color(34,202,237));
         g2d.fillOval(thumbRect.x, thumbRect.y, diameter, diameter);
     }
+
+//    @Override
+//    protected TrackListener createTrackListener(JSlider slider) {
+//        return new TrackListener() {
+//            @Override public boolean shouldScroll(int direction) {
+//                return false;
+//            }
+//        };
+//    }
 }

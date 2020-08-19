@@ -1,5 +1,7 @@
 package App.SongNamePanel;
 
+import App.CardPanel.PlaylistHandler;
+
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import java.awt.*;
@@ -7,12 +9,12 @@ import java.awt.*;
 public class SongNamePanel extends JPanel{
     private JPanel borderPanel;
     private MovingPanel textPanel;
-    public SongNamePanel(String startingSongName)
+    public SongNamePanel()
     {
         setBounds(0, 44, 550, 50);
         setBackground(new Color(7,63,86));
         setLayout(null);
-        initTextPanel(startingSongName);
+        initTextPanel(PlaylistHandler.getInstance().getSongsInfo().get(0).getName());
         initBorderPanel();
     }
 
@@ -44,6 +46,16 @@ public class SongNamePanel extends JPanel{
     public void stopMovingText()
     {
         textPanel.stop();
+    }
+
+    public void startMovingText()
+    {
+        textPanel.start();
+    }
+
+    public void redraw()
+    {
+        textPanel.repaint();
     }
 
     public void songNameToCenter()

@@ -3,6 +3,7 @@ package App;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.io.File;
 
 public class PlaylistDatabase {
     private Connection con;
@@ -25,7 +26,7 @@ public class PlaylistDatabase {
             ResultSet res = stmt.executeQuery("SELECT name FROM sqlite_master WHERE type='table' AND name='playlist'");
             if (!res.next()) {
                 Statement stmt2 = con.createStatement();
-                stmt2.execute("CREATE TABLE playlist(name varchar(50)," + "path varchar(50)," + "time varchar(10)," +"primary key(name));");
+                stmt2.execute("CREATE TABLE playlist(name varchar(50)," + "path varchar(50)," + "millis integer," +"primary key(name));");
             }
             stmt.close();
         } catch (Exception e) {
@@ -41,10 +42,13 @@ public class PlaylistDatabase {
             ArrayList<SongInformation> list= new ArrayList<>();
             Statement stmt = con.createStatement();
             ResultSet res = stmt.executeQuery("SELECT * FROM playlist");
-            while(res.next())
-            {
-                list.add(new SongInformation(res.getString("name"),
-                        res.getString("path"), res.getString("time")));
+            File file;
+            while(res.next()) {
+                file = new File(res.getString("path") + "\\" + res.getString("name"));
+                if (file.isFile()) {
+                    list.add(new SongInformation(res.getString("name"),
+                            res.getString("path"), res.getInt("millis")));
+                }
             }
             stmt.close();
             return list;
@@ -57,12 +61,12 @@ public class PlaylistDatabase {
             closeDatabase();
         }
     }
-    public void addSong(String name, String path, String time) {
+    public void addSong(String name, String path, int millis) {
         try {
             PreparedStatement prep = con.prepareStatement("INSERT INTO playlist values(?,?,?);");
             prep.setString(1, name);
             prep.setString(2, path);
-            prep.setString(3, time);
+            prep.setInt(3, millis);
             prep.execute();
             prep.close();
         }

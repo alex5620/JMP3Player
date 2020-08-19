@@ -5,7 +5,11 @@ import App.TimePanel.CustomizedSliderUI;
 
 import javax.sound.sampled.*;
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class ButtonsPanel extends JPanel{
     private JMediaPlayer mediaPlayer;
@@ -27,7 +31,7 @@ public class ButtonsPanel extends JPanel{
         createButtons();
         addButtons();
         initJSlider();
-        volumeValue=new JLabel("50");
+        volumeValue=new JLabel(Integer.toString(mediaPlayer.getSettingsDatabaseDatabase().getSettingsInformation("volume")));
         volumeLevel=3;
         volumeValue.setBounds(523, 13, 30, 60);
         volumeValue.setForeground(new Color(34,202,237));
@@ -42,16 +46,32 @@ public class ButtonsPanel extends JPanel{
     {
         jSlider = new JSlider();
         jSlider.setBounds(425, 15, 95, 60);
-        jSlider.setValue(50);
+        jSlider.setValue(mediaPlayer.getSettingsDatabaseDatabase().getSettingsInformation("volume"));
         jSlider.setMaximum(100);
         jSlider.setOpaque(false);
         jSlider.setUI(new CustomizedSliderUI(jSlider, 12, 3));
-        jSlider.addChangeListener(e -> {
-            int currentVolumeValue= jSlider.getValue();
-            volumeControl(((double)currentVolumeValue)/100);
-            volumeValue.setText(Integer.toString(currentVolumeValue));
-            changeVolumeImage(currentVolumeValue);
+//        jSlider.addChangeListener(e -> {
+//            int currentVolumeValue= jSlider.getValue();
+//            volumeControl(((double)currentVolumeValue)/100);
+//            volumeValue.setText(Integer.toString(currentVolumeValue));
+//            changeVolumeImage(currentVolumeValue);
+//        });
+        jSlider.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                int currentVolumeValue= jSlider.getValue();
+                volumeControl(((double)currentVolumeValue)/100);
+            }
         });
+        jSlider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                int currentVolumeValue = jSlider.getValue();
+                volumeValue.setText(Integer.toString(currentVolumeValue));
+                changeVolumeImage(currentVolumeValue);
+            }
+        });
+        jSlider.setFocusable(false);
         add(jSlider);
     }
 
@@ -129,7 +149,8 @@ public class ButtonsPanel extends JPanel{
                     float currentVolume = volControl.getValue();
                     Double volumeToCut = valueToPlusMinus;
                     float changedCalc = (float)((double)volumeToCut);
-                    volControl.setValue(changedCalc);
+//                    volControl.setValue(changedCalc);
+                    mediaPlayer.getPlayer().setVolume(changedCalc);
                 }catch(Exception e)
                 {
 //					e.printStackTrace();
@@ -142,6 +163,11 @@ public class ButtonsPanel extends JPanel{
                 }
             }
         }
+    }
+
+    public int getVolumeValue()
+    {
+        return Integer.parseInt(volumeValue.getText());
     }
 }
 

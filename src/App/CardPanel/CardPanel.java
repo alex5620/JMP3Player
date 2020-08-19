@@ -47,12 +47,17 @@ public class CardPanel extends JPanel {
 
     public void selectFirstRow()
     {
-        playlistPanel.selectFirstRow();
+        playlistPanel.selectRow(0);
     }
 
     public void selectNextRow()
     {
         playlistPanel.selectNextRow();
+    }
+
+    public void refreshPlaylistTableCells()
+    {
+        playlistPanel.refreshTableCells();
     }
 
     public void initWaveform()
@@ -63,5 +68,14 @@ public class CardPanel extends JPanel {
     public int getRowSelected()
     {
         return playlistPanel.getRowSelected();
+    }
+
+    public PlayingNowPanel getPlayingNowPanel() {
+        return playingNowPanel;
+    }
+
+    public PlaylistPanel getPlaylistPanel()
+    {
+        return playlistPanel;
     }
 }

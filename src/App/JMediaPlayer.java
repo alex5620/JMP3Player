@@ -2,6 +2,7 @@ package App;
 
 import App.ButtonsPanel.ButtonsPanel;
 import App.CardPanel.CardPanel;
+import App.CardPanel.PlayingNowPanel;
 import App.CardPanel.PlaylistHandler;
 import App.HeaderPanel.HeaderPanel;
 import App.MenuPanel.MenuPanel;
@@ -9,16 +10,15 @@ import App.SongNamePanel.SongNamePanel;
 import App.TimePanel.TimePanel;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import javafx.util.Duration;
 
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.io.File;
 
 
-public class JMediaPlayer {
+public class JMediaPlayer{
     private JFrame frame;
     private HeaderPanel headerPanel;
     private SongNamePanel songNamePanel;
@@ -26,32 +26,41 @@ public class JMediaPlayer {
     private ButtonsPanel buttonsPanel;
     private MenuPanel menuPanel;
     private CardPanel cardPanel;
-    private PlaylistDatabase database;
+    private PlaylistDatabase playlistDatabase;
+    private SettingsDatabase settingsDatabase;
 
     private MediaPlayer player;
+    private Media media;
     private File songFile;
-    private String currentDirectory="home.user";
+    private String currentDirectory;
+    private int currentSongIndex;
     boolean repeat = false;
     boolean paused = false;
+    boolean stopped = true;
     boolean windowCollapsed=false;
 
     public JMediaPlayer(String title) {
         com.sun.javafx.application.PlatformImpl.startup(()->{});//just to be able to use javafx
-        database = new PlaylistDatabase();
-        database.initialize();
+        playlistDatabase = new PlaylistDatabase();
+        playlistDatabase.initialize();
+        settingsDatabase = new SettingsDatabase();
+        settingsDatabase.initialize();
+        currentDirectory = settingsDatabase.getCurrentDirectory();
         PlaylistHandler.getInstance().loadSongs(this);
         initFrame();
         SongInformation song = PlaylistHandler.getInstance().getSongsInfo().get(0);
         songFile=new File(song.getPath()+"\\"+song.getName());
         initPanels(title);
         createPlayer();
+        currentSongIndex=0;
     }
 
     public void createPlayer()
     {
-        Media media = new Media(songFile.toURI().toString());
+        media = new Media(songFile.toURI().toString());
         player = new MediaPlayer(media);
-        player.setOnEndOfMedia(()->
+        getPlayer().setVolume(buttonsPanel.getVolumeValue()/100.0);
+        player.setOnEndOfMedia(() ->
         {
             initNextSong();
         });
@@ -59,35 +68,62 @@ public class JMediaPlayer {
 
     private void initNextSong()
     {
-        int nextRow = cardPanel.getRowSelected()+1;
-        createPlayer(nextRow);
-//        sleepThread();
-        cardPanel.selectNextRow();
-//        initWaveform();
-        songNamePanel.songNameToBeginning();
-        songNamePanel.setSongName(PlaylistHandler.getInstance().getSongsInfo().get(nextRow).getName());
-        setSongTime();
-        setjSliderMaxValue();
+        if(repeat==false) {
+            currentSongIndex++;
+            System.out.println(currentSongIndex);
+            cardPanel.refreshPlaylistTableCells();
+            createPlayerByCurrentIndex();
+        }
+        else
+        {
+            player.seek(Duration.ZERO);
+        }
     }
 
-    public void createPlayer(int songIndex)
+    private void setPlaylistFinished()
+    {
+        songNamePanel.setSongName("Playlist finished.");
+        songNameToCenter();
+        stopMovingText();
+        stopped = true;
+        cardPanel.getPlayingNowPanel().resetAudioInfo();
+        player.stop();
+        player.seek(new Duration(0));
+        timePanel.resetjSlider();
+        cardPanel.refreshPlaylistTableCells();
+    }
+
+    public void createPlayerByCurrentIndex()
     {
         player.stop();
-        SongInformation song= PlaylistHandler.getInstance().getSongsInfo().get(songIndex);
+        if (currentSongIndex >= PlaylistHandler.getInstance().getSongsNumber()) {
+            setPlaylistFinished();
+            return;
+        }
+        SongInformation song = PlaylistHandler.getInstance().getSongsInfo().get(currentSongIndex);
         String songPath = song.getPath()+"\\"+song.getName();
-        Media media = new Media(new File(songPath).toURI().toString());
+        try {
+            media = new Media(new File(songPath).toURI().toString());
+        }catch (Exception e)
+        {
+                cardPanel.getPlaylistPanel().removeRow(currentSongIndex);
+                cardPanel.getPlaylistPanel().refreshTableCells();
+                createPlayerByCurrentIndex();
+                return;
+        }
         player = new MediaPlayer(media);
+        sleepThread();
         player.play();
-        player.setOnEndOfMedia(()->
+        getPlayer().setVolume(buttonsPanel.getVolumeValue()/100.0);
+        reinitMediaPlayer();
+        player.setOnEndOfMedia(() ->
         {
             initNextSong();
         });
-        reinitMediaPlayer();
     }
 
     public void reinitMediaPlayer()
     {
-        sleepThread();
         updateSongName();
         songNameToBeginning();
         paused=false;
@@ -112,7 +148,7 @@ public class JMediaPlayer {
     {
         headerPanel = new HeaderPanel(this, title);
         frame.getContentPane().add(headerPanel);
-        songNamePanel = new SongNamePanel(songFile.getName());
+        songNamePanel = new SongNamePanel();
         frame.getContentPane().add(songNamePanel);
         timePanel = new TimePanel(this);
         frame.getContentPane().add(timePanel);
@@ -156,16 +192,10 @@ public class JMediaPlayer {
 
     public void setRepeat(boolean repeat)
     {
-        if(repeat==true) {
-            this.repeat = repeat;
-            player.setStartTime(player.getCurrentTime());
-            player.setAutoPlay(true);
-            player.setCycleCount(MediaPlayer.INDEFINITE);
-            player.play();
-        }
-        else
-        {
-            player.setAutoPlay(false);
+        if (repeat) {
+            this.repeat = true;
+        } else {
+            this.repeat = false;
         }
     }
 
@@ -182,13 +212,33 @@ public class JMediaPlayer {
     public void updateSongName()
     {
         songNamePanel.setSongName(PlaylistHandler.getInstance().getSongsInfo().
-                get(cardPanel.getRowSelected()).getName());
+                get(currentSongIndex).getName());
     }
 
     public void updateCurrentDirectory(String currentDirectory)
     {
         this.currentDirectory = currentDirectory;
     }
+
+    public void resetCurrentIndex()
+    {
+        currentSongIndex=0;
+        System.out.println(currentSongIndex);
+    }
+
+    public void decreaseCurrentSongIndex()
+    {
+        --currentSongIndex;
+        System.out.println(currentSongIndex);
+
+    }
+
+    public void updateCurrentSongIndex()
+    {
+        currentSongIndex = cardPanel.getPlaylistPanel().getIndexOfSelectedRow()-1;
+        System.out.println(currentSongIndex);
+    }
+
     public JFrame getFrame()
     {
         return frame;
@@ -229,6 +279,26 @@ public class JMediaPlayer {
         timePanel.setjSliderMaxValue();
     }
 
+    public void setStopped(boolean value)
+    {
+        stopped = value;
+    }
+
+    public boolean isStopped()
+    {
+        return stopped;
+    }
+
+    public SongNamePanel getSongNamePanel()
+    {
+        return songNamePanel;
+    }
+
+    public TimePanel getTimePanel()
+    {
+        return timePanel;
+    }
+
     public void sleepThread()
     {
         try {
@@ -244,9 +314,19 @@ public class JMediaPlayer {
         return cardPanel;
     }
 
-    public PlaylistDatabase getDatabase()
+    public PlaylistDatabase getPlaylistDatabase()
     {
-        return database;
+        return playlistDatabase;
+    }
+
+    public SettingsDatabase getSettingsDatabaseDatabase()
+    {
+        return settingsDatabase;
+    }
+
+    public int getCurrentSongIndex()
+    {
+        return currentSongIndex;
     }
 }
 

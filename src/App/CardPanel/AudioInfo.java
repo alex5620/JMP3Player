@@ -26,7 +26,8 @@ public class AudioInfo {
                 false);
         din = AudioSystem.getAudioInputStream(decodedFormat, in);
         channelsNumber=decodedFormat.getChannels();
-        byte [] mybyte = new byte[(int)(mediaPlayer.getPlayer().getTotalDuration().toMillis()*300)];
+        int songTimeInMilli = PlaylistHandler.getInstance().getSongsInfo().get(mediaPlayer.getCurrentSongIndex()).getSongMillis();
+        byte [] mybyte = new byte[songTimeInMilli*300];
         int result=0;
         try {
             result=din.read(mybyte);

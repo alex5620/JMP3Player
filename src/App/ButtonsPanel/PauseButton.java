@@ -22,9 +22,19 @@ public class PauseButton extends AbstractButton {
             @Override
             public void mousePressed(MouseEvent e) {
                 setIcon(new ImageIcon("images/pause_pressed.png"));
-                mediaPlayer.getPlayer().pause();
-                mediaPlayer.setPaused(true);
-                mediaPlayer.stopMovingText();
+                if(mediaPlayer.isPaused()==false) {
+                    mediaPlayer.getPlayer().pause();
+                    mediaPlayer.setPaused(true);
+                    mediaPlayer.stopMovingText();
+                }
+                if(mediaPlayer.isStopped())
+                {
+                    mediaPlayer.getCardPanel().getPlaylistPanel().delesectRow();
+                    mediaPlayer.getSongNamePanel().setSongName("No song playing.");
+                    mediaPlayer.getSongNamePanel().redraw();
+                    mediaPlayer.stopMovingText();
+                }
+                System.out.println("Pause:" + mediaPlayer.isPaused());
             }
             @Override
             public void mouseReleased(MouseEvent e) {

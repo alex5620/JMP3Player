@@ -1,7 +1,9 @@
 package App.CardPanel;
 
+import App.FileTypeFilter;
 import App.JMediaPlayer;
 import App.SongInformation;
+import com.sun.media.ui.ToolTip;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
@@ -13,9 +15,9 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.util.ArrayList;
+import java.io.File;
 
 public class PlaylistPanel extends JPanel {
     private JMediaPlayer mediaPlayer;
@@ -73,21 +75,81 @@ public class PlaylistPanel extends JPanel {
         table.getColumnModel().getColumn(0).setPreferredWidth(30);
         table.getColumnModel().getColumn(1).setPreferredWidth(410);
         table.getColumnModel().getColumn(2).setPreferredWidth(60);
-        table.getColumnModel().getColumn(0).setCellRenderer( new MyCellRenderer(true) );
-        table.getColumnModel().getColumn(1).setCellRenderer( new MyCellRenderer(false) );
-        table.getColumnModel().getColumn(2).setCellRenderer( new MyCellRenderer(true) );
+        table.getColumnModel().getColumn(0).setCellRenderer( new MyCellRenderer(mediaPlayer, true) );
+        table.getColumnModel().getColumn(1).setCellRenderer( new MyCellRenderer(mediaPlayer, false) );
+        table.getColumnModel().getColumn(2).setCellRenderer( new MyCellRenderer(mediaPlayer, true) );
     }
 
     private void addListenerToColumnSelected()
     {
         table.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent mouseEvent) {
-                Point point = mouseEvent.getPoint();
                 if (mouseEvent.getClickCount() == 2) {
-                    mediaPlayer.createPlayer(getRowSelected());
-                    mediaPlayer.sleepThread();
-                    mediaPlayer.initWaveform();
+                    mediaPlayer.updateCurrentSongIndex();
+                    mediaPlayer.getCardPanel().refreshPlaylistTableCells();
+                    mediaPlayer.createPlayerByCurrentIndex();
+                    mediaPlayer.setStopped(false);
+                    mediaPlayer.setPaused(false);
                 }
+                else if (mouseEvent.getClickCount()==1 && mediaPlayer.isStopped())
+                {
+                    mediaPlayer.getSongNamePanel().setSongName(PlaylistHandler.getInstance().getSongsInfo().
+                            get(mediaPlayer.getCardPanel().getRowSelected()).getName());
+                    mediaPlayer.getSongNamePanel().redraw();
+                    mediaPlayer.stopMovingText();
+                }
+            }
+        });
+        table.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "Enter");
+        table.getActionMap().put("Enter", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                mediaPlayer.updateCurrentSongIndex();
+                mediaPlayer.getCardPanel().refreshPlaylistTableCells();
+                mediaPlayer.createPlayerByCurrentIndex();
+                mediaPlayer.setStopped(false);
+                mediaPlayer.setPaused(false);
+            }
+        });
+        table.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), "Down");
+        table.getActionMap().put("Down", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                if (table.getSelectedRow() < table.getRowCount() - 1) {
+                    table.setRowSelectionInterval(table.getSelectedRow() + 1, table.getSelectedRow() + 1);
+                    if(mediaPlayer.isStopped())
+                    {
+                        mediaPlayer.getSongNamePanel().setSongName(PlaylistHandler.getInstance().getSongsInfo().
+                                get(mediaPlayer.getCardPanel().getRowSelected()).getName());
+                        mediaPlayer.getSongNamePanel().redraw();
+                        mediaPlayer.stopMovingText();
+                    }
+                    table.changeSelection(table.getSelectedRow(), 0, false, false);
+                }
+            }
+        });
+        table.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), "Up");
+        table.getActionMap().put("Up", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                if (table.getSelectedRow() > 0) {
+                    table.setRowSelectionInterval(table.getSelectedRow() - 1, table.getSelectedRow() - 1);
+                    if(mediaPlayer.isStopped())
+                    {
+                        mediaPlayer.getSongNamePanel().setSongName(PlaylistHandler.getInstance().getSongsInfo().
+                                get(mediaPlayer.getCardPanel().getRowSelected()).getName());
+                        mediaPlayer.getSongNamePanel().redraw();
+                        mediaPlayer.stopMovingText();
+                    }
+                    table.changeSelection(table.getSelectedRow(), 0, false, false);
+                }
+            }
+        });
+        table.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), "Delete");
+        table.getActionMap().put("Delete", new AbstractAction() {
+            public void actionPerformed(ActionEvent e) {
+                removeRow(Integer.parseInt((String)table.getValueAt(table.getSelectedRow(),0))-1);
+                checkIfSongDeletedIsUnderSongSelected();
             }
         });
     }
@@ -95,7 +157,7 @@ public class PlaylistPanel extends JPanel {
     public int getRowSelected()
     {
         return table.getSelectedRow();
-    };
+    }
 
     private void initScrollPane()
     {
@@ -163,7 +225,7 @@ public class PlaylistPanel extends JPanel {
             }
         });
         scrollPane.getVerticalScrollBar().setBackground(new Color(53, 169, 180));
-        scrollPane.getVerticalScrollBar().setPreferredSize(new Dimension(10,300));
+        scrollPane.getVerticalScrollBar().setPreferredSize(new Dimension(14,300));
         scrollPane.getVerticalScrollBar().setBorder(new LineBorder(new Color(0,0,0),1));
     }
 
@@ -222,16 +284,82 @@ public class PlaylistPanel extends JPanel {
         addButton = new JLabel();
         addButton.setBounds(390,310, 40,40);
         addButton.setIcon(new ImageIcon("images/add_button.png"));
+        addButton.setToolTipText("Add songs");
+        UIManager.put("ToolTip.background", new Color(7, 48, 65));
+        UIManager.put("ToolTip.foreground", new Color(34,202,237));
+        addListenerToAddButton();
         add(addButton);
     }
 
+    private void addListenerToAddButton()
+    {
+        addButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                JFileChooser openFileChooser = new MyJFileChooser(mediaPlayer.getCurrentDirectory());
+                openFileChooser.setMultiSelectionEnabled(true);
+                openFileChooser.setFileFilter(new FileTypeFilter(".mp3", "Open MP3 Files Only!"));
+                openFileChooser.showOpenDialog(null);
+                File[] files = openFileChooser.getSelectedFiles();
+                if(files.length>0)
+                {
+                    ArrayList<SongInformation> info = PlaylistHandler.getInstance().addNewPlaylistInformation(files, false);
+                    addValuesToTable(info);
+                    mediaPlayer.updateCurrentDirectory(files[0].getAbsolutePath());
+                }
+            }
+        });
+    }
 
     private void initRemoveButton()
     {
         removeButton = new JLabel();
         removeButton.setBounds(440,310, 40,40);
         removeButton.setIcon(new ImageIcon("images/remove_button.png"));
+        removeButton.setToolTipText("Remove selected song");
+        addListenerToRemoveButton();
         add(removeButton);
+    }
+
+    private void addListenerToRemoveButton()
+    {
+        removeButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                removeRow(Integer.parseInt((String)table.getValueAt(table.getSelectedRow(),0))-1);
+                checkIfSongDeletedIsUnderSongSelected();
+            }
+        });
+    }
+
+    private void checkIfSongDeletedIsUnderSongSelected()
+    {
+        if(table.getSelectedRow()<mediaPlayer.getCurrentSongIndex())
+        {
+            mediaPlayer.decreaseCurrentSongIndex();
+        }
+    }
+
+    public void removeRow(int arrayIndex)
+    {
+        int rowSelected = table.getSelectedRow();
+        if(table.getValueAt(rowSelected,1).equals(PlaylistHandler.getInstance().getSongsInfo().get(mediaPlayer.getCurrentSongIndex()).getName()))
+        {
+            return;
+        }
+        tableModel.removeRow(arrayIndex);
+        PlaylistHandler.getInstance().removeSong(arrayIndex);
+        table.setRowSelectionInterval(rowSelected, rowSelected);
+        refreshTableIndexes(arrayIndex);
+        refreshTableCells();
+    }
+
+    private void refreshTableIndexes(int index)
+    {
+        for(int i=index; i < tableModel.getRowCount(); ++i)
+        {
+            tableModel.setValueAt(Integer.toString(i+1),i,0);
+        }
     }
 
     private void populatePlaylistTable()
@@ -243,23 +371,28 @@ public class PlaylistPanel extends JPanel {
         {
             values[0]=Integer.toString(i+1);
             values[1]=songs.get(i).getName();
-            values[2]=songs.get(i).getTime();
+            values[2]=PlaylistHandler.getInstance().getFormattedString(songs.get(i).getSongMillis()/1000);
             tableModel.addRow(values);
         }
-        selectFirstRow();
+        selectRow(0);
     }
 
-    public void selectFirstRow()
+    public void selectRow(int index)
     {
         if(tableModel.getRowCount()>=0)
         {
-            table.setRowSelectionInterval(0, 0);
+            table.setRowSelectionInterval(index, index);
         }
+    }
+
+    public void delesectRow()
+    {
+        table.clearSelection();
     }
 
     public void selectNextRow()
     {
-        int currentRow = table.getSelectedRow();
+        int currentRow = mediaPlayer.getCurrentSongIndex();
         int maxRow =  tableModel.getRowCount();
         if(currentRow < maxRow)
         {
@@ -269,14 +402,23 @@ public class PlaylistPanel extends JPanel {
 
     public void addValuesToTable(ArrayList<SongInformation> infos)
     {
-        Object [] values={"","",""};
+        Object [] values={0,"",""};
         tableModel.setRowCount(0);
         for(SongInformation info: infos)
         {
-            values[0]=tableModel.getRowCount()+1;
+            values[0]=Integer.toString(tableModel.getRowCount()+1);
             values[1]=info.getName();
-            values[2]=info.getTime();
+            values[2]=PlaylistHandler.getInstance().getFormattedString(info.getSongMillis()/1000);
             tableModel.addRow(values);
         }
+    }
+
+    public void refreshTableCells()
+    {
+        table.repaint();
+    }
+
+    public int getIndexOfSelectedRow(){
+        return Integer.parseInt((String)table.getValueAt(table.getSelectedRow(), 0));
     }
 }

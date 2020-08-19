@@ -7,7 +7,7 @@ public class Main {
         EventQueue.invokeLater(new Runnable() {
             public void run() {
                 try {
-                    JMediaPlayer window = new JMediaPlayer("JMediaPlayer");
+                    JMediaPlayer window = new JMediaPlayer("JMP3Player");
                     window.makeVisible();
                 } catch (Exception e) {
                     e.printStackTrace();

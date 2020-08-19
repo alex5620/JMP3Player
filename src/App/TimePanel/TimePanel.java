@@ -2,12 +2,16 @@ package App.TimePanel;
 
 import App.CardPanel.PlaylistHandler;
 import App.JMediaPlayer;
+import App.SongInformation;
 import javafx.util.Duration;
 
+import javax.media.TrackListener;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.plaf.basic.BasicSliderUI;
+import javax.swing.plaf.metal.MetalSliderUI;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -44,7 +48,7 @@ public class TimePanel extends JPanel implements ActionListener {
 
     public void initMaxTimeLabel()
     {
-        maxTime = new JLabel("3:45");
+        maxTime = new JLabel("0:00");
         maxTime.setBounds(500, 21, 46, 14);
         maxTime.setForeground(new Color(34,202,237));
         add(maxTime);
@@ -52,45 +56,47 @@ public class TimePanel extends JPanel implements ActionListener {
 
     public void initJSlider()
     {
-        jSlider = new JSlider();
+        jSlider =new JSlider();
         jSlider.setBounds(58, 15, 430, 26);
         jSlider.setValue(0);
+        jSlider.setMaximum(0);
         jSlider.setOpaque(false);
         jSlider.setUI(new CustomizedSliderUI(jSlider, 16, 3));
         jSlider.addChangeListener(e -> {
-            if (mousePressed) {
-                int currentJSliderState = jSlider.getValue();
-                double currentSongState = mediaPlayer.getPlayer().getCurrentTime().toSeconds();
-                double difference = currentJSliderState - currentSongState;
-                System.out.println("difference: " + difference);
-                mediaPlayer.getPlayer().seek(mediaPlayer.getPlayer().getCurrentTime().add(new Duration(difference * 1000)));
-            }
+            currentTime.setText(getFormattedString(jSlider.getValue()));
         });
         jSlider.addMouseListener(new MouseAdapter() {
             @Override
-            public void mousePressed(MouseEvent e) {
-                mousePressed=true;
-            }
-            @Override
             public void mouseReleased(MouseEvent e)
             {
+                int currentJSliderState = jSlider.getValue();
+                double currentSongState = mediaPlayer.getPlayer().getCurrentTime().toSeconds();
+                double difference = currentJSliderState - currentSongState;
+                mediaPlayer.getPlayer().seek(mediaPlayer.getPlayer().getCurrentTime().add(new Duration(difference * 1000)));
                 mousePressed=false;
             }
+            @Override
+            public void mousePressed(MouseEvent e)
+            {
+                mousePressed=true;
+            }
         });
+        jSlider.setFocusable(false);
         add(jSlider);
     }
 
     @Override
     public void actionPerformed(ActionEvent e)
     {
-        currentTime.setText(getFormattedString(mediaPlayer.getPlayer().getCurrentTime()));
-        jSlider.setValue((int)mediaPlayer.getPlayer().getCurrentTime().toSeconds());
+        if(mousePressed==false) {
+            currentTime.setText(getFormattedString(mediaPlayer.getPlayer().getCurrentTime().toSeconds()));
+            jSlider.setValue((int)mediaPlayer.getPlayer().getCurrentTime().toSeconds());
+        }
     }
 
-    private String getFormattedString(Duration duration)
+    private String getFormattedString(double currentTimeSeconds)
     {
         String formattedString="";
-        double currentTimeSeconds = duration.toSeconds();
         int minutes = (((int)(currentTimeSeconds)/60));
         formattedString+=minutes+":";
         int seconds= (((int)currentTimeSeconds)%60);
@@ -107,13 +113,30 @@ public class TimePanel extends JPanel implements ActionListener {
 
     public void setMaxTime()
     {
-        maxTime.setText(PlaylistHandler.getInstance().getSongsInfo().
-                get(mediaPlayer.getCardPanel().getRowSelected()).getTime());
+        int currentIndex = mediaPlayer.getCurrentSongIndex();
+        SongInformation currentSong = PlaylistHandler.getInstance().getSongsInfo().get(currentIndex);
+        maxTime.setText(PlaylistHandler.getInstance().getFormattedString(currentSong.getSongMillis()/1000));
+    }
+
+    public void resetMaxTime()
+    {
+        maxTime.setText("0:00");
+    }
+
+
+    public void resetjSlider()
+    {
+        jSlider.setValue(0);
+        jSlider.setMaximum(0);
+        currentTime.setText("0:00");
+        resetMaxTime();
     }
 
     public void setjSliderMaxValue()
     {
-        jSlider.setMaximum((int)mediaPlayer.getPlayer().getTotalDuration().toSeconds());
+        int songTimeInSeconds = PlaylistHandler.getInstance().getSongsInfo().get(mediaPlayer.getCurrentSongIndex()).getSongMillis()/1000;
+        jSlider.setMaximum(songTimeInSeconds);
         jSlider.setValue(0);
     }
+
 }

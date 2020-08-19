@@ -44,6 +44,7 @@ public class MovingPanel extends JPanel implements ActionListener{
     public void setSongName(String text)
     {
         songText=text;
+        index = 255 - (songText.length()*6) / 2;
     }
 
     public void start()

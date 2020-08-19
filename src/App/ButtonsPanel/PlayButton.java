@@ -22,17 +22,27 @@ public class PlayButton extends AbstractButton {
             @Override
             public void mousePressed(MouseEvent e) {
                 setIcon(new ImageIcon("images/play_pressed.png"));
-                mediaPlayer.updateSongName();
-                if(mediaPlayer.isPaused()==false)
-                {
+                if (mediaPlayer.getCardPanel().getPlaylistPanel().getRowSelected() != -1) {
+                    mediaPlayer.setStopped(false);
+                    if(mediaPlayer.isPaused())
+                    {
+                        mediaPlayer.setPaused(false);
+                        mediaPlayer.getSongNamePanel().startMovingText();
+                        mediaPlayer.getPlayer().play();
+                        return;
+                    }
+                    mediaPlayer.setPaused(false);
                     mediaPlayer.songNameToBeginning();
+                    mediaPlayer.updateCurrentSongIndex();
+                    mediaPlayer.createPlayerByCurrentIndex();
+                    mediaPlayer.getCardPanel().refreshPlaylistTableCells();
                 }
-                mediaPlayer.sleepThread();
-                mediaPlayer.getPlayer().play();
-                mediaPlayer.setPaused(false);
-                mediaPlayer.setSongTime();
-                mediaPlayer.setjSliderMaxValue();
-                mediaPlayer.initWaveform();
+                else
+                {
+                    mediaPlayer.getSongNamePanel().setSongName("No sound selected.");
+                    mediaPlayer.stopMovingText();
+                    mediaPlayer.getSongNamePanel().redraw();
+                }
             }
             @Override
             public void mouseReleased(MouseEvent e) {
