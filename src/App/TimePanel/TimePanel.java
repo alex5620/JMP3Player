@@ -5,13 +5,7 @@ import App.JMediaPlayer;
 import App.SongInformation;
 import javafx.util.Duration;
 
-import javax.media.TrackListener;
 import javax.swing.*;
-import javax.swing.border.LineBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.plaf.basic.BasicSliderUI;
-import javax.swing.plaf.metal.MetalSliderUI;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -61,7 +55,7 @@ public class TimePanel extends JPanel implements ActionListener {
         jSlider.setValue(0);
         jSlider.setMaximum(0);
         jSlider.setOpaque(false);
-        jSlider.setUI(new CustomizedSliderUI(jSlider, 16, 3));
+        jSlider.setUI(new TimeSlider(jSlider, 16, 3));
         jSlider.addChangeListener(e -> {
             currentTime.setText(getFormattedString(jSlider.getValue()));
         });

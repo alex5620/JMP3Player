@@ -2,6 +2,9 @@ package App.HeaderPanel;
 
 import App.CardPanel.PlaylistHandler;
 import App.JMediaPlayer;
+import App.SettingsWindow.SettingsWindow;
+import javafx.collections.ObservableList;
+import javafx.scene.media.EqualizerBand;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,6 +14,7 @@ import java.awt.event.MouseMotionAdapter;
 
 public class HeaderPanel extends JPanel{
     private JMediaPlayer mediaPlayer;
+    private SettingsWindow settingsWindow;
     private JLabel appNameLabel;
     private JLabel quitLabel;
     private JLabel settingsLabel;
@@ -34,7 +38,20 @@ public class HeaderPanel extends JPanel{
         someButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                System.out.println("Yea");;
+                ObservableList<EqualizerBand> bands = mediaPlayer.getPlayer().getAudioEqualizer().getBands();
+                bands.clear();
+                double min = EqualizerBand.MIN_GAIN;
+                double max = EqualizerBand.MAX_GAIN;
+                double mid = (max - min)/2;
+                double freq = 250;
+                for(int j=0;j<7;++j)
+                {
+                    double theta = (double)j / (double)(6) *(2*Math.PI);
+                    double scale = 0.4*(1+Math.cos(theta));
+                    double gain = min + mid + (mid*scale);
+                    bands.add(new EqualizerBand(freq, freq/2, gain));
+                    freq *= 2;
+                }
             }
         });
         add(someButton);
@@ -83,12 +100,12 @@ public class HeaderPanel extends JPanel{
                         windowCollapsed = true;
                         mediaPlayer.getFrame().setSize(new Dimension((int) mediaPlayer.getFrame().getSize().getWidth(), 48));
                         appNameLabel.setFont(new Font("Nirmala UI", 0, 12));
-                        appNameLabel.setText("Playing now..." + mediaPlayer.getSongName());
+                        appNameLabel.setText("Playing now..." + PlaylistHandler.getInstance().getSongsInfo().get(mediaPlayer.getCurrentSongIndex()).getName());
                     }
                     else
                     {
                         windowCollapsed = false;
-                        mediaPlayer.getFrame().setSize(new Dimension((int) mediaPlayer.getFrame().getSize().getWidth(), 216));
+                        mediaPlayer.getFrame().setSize(new Dimension((int) mediaPlayer.getFrame().getSize().getWidth(), 650));
                         appNameLabel.setFont(new Font("Nirmala UI", 0, 18));
                         appNameLabel.setText(appName);
                     }
@@ -137,8 +154,15 @@ public class HeaderPanel extends JPanel{
         settingsLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                JOptionPane.showMessageDialog(mediaPlayer.getFrame(), "Message");
+                mediaPlayer.setEqualizerActive(true);
+                settingsWindow = new SettingsWindow(mediaPlayer);
+                settingsWindow.addFrequenciesSliders();
             }
         });
+    }
+
+    public void updateFrequenciesSliders()
+    {
+        settingsWindow.addFrequenciesSliders();
     }
 }

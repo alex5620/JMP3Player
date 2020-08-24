@@ -1,7 +1,7 @@
 package App.ButtonsPanel;
 
 import App.JMediaPlayer;
-import App.TimePanel.CustomizedSliderUI;
+import App.TimePanel.TimeSlider;
 
 import javax.sound.sampled.*;
 import javax.swing.*;
@@ -49,7 +49,7 @@ public class ButtonsPanel extends JPanel{
         jSlider.setValue(mediaPlayer.getSettingsDatabaseDatabase().getSettingsInformation("volume"));
         jSlider.setMaximum(100);
         jSlider.setOpaque(false);
-        jSlider.setUI(new CustomizedSliderUI(jSlider, 12, 3));
+        jSlider.setUI(new TimeSlider(jSlider, 12, 3));
 //        jSlider.addChangeListener(e -> {
 //            int currentVolumeValue= jSlider.getValue();
 //            volumeControl(((double)currentVolumeValue)/100);
@@ -163,6 +163,11 @@ public class ButtonsPanel extends JPanel{
                 }
             }
         }
+    }
+
+    public void setjSliderValue(double value)
+    {
+        jSlider.setValue((int)(value*100));
     }
 
     public int getVolumeValue()

@@ -34,10 +34,11 @@ public class JMediaPlayer{
     private File songFile;
     private String currentDirectory;
     private int currentSongIndex;
-    boolean repeat = false;
-    boolean paused = false;
-    boolean stopped = true;
-    boolean windowCollapsed=false;
+    private boolean repeat = false;
+    private boolean paused = false;
+    private boolean stopped = true;
+    private boolean windowCollapsed=false;
+    private boolean isEqualizerActive=false;
 
     public JMediaPlayer(String title) {
         com.sun.javafx.application.PlatformImpl.startup(()->{});//just to be able to use javafx
@@ -130,6 +131,10 @@ public class JMediaPlayer{
         setSongTime();
         setjSliderMaxValue();
         initWaveform();
+        if(isEqualizerActive)
+        {
+            headerPanel.updateFrequenciesSliders();
+        }
     }
 
     private void initFrame()
@@ -207,6 +212,16 @@ public class JMediaPlayer{
     public void setPaused(boolean paused)
     {
         this.paused=paused;
+    }
+
+    public void setEqualizerActive(boolean isActive)
+    {
+        isEqualizerActive = isActive;
+    }
+
+    public boolean isEqualizerActive()
+    {
+        return isEqualizerActive;
     }
 
     public void updateSongName()

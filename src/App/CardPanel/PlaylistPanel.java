@@ -64,7 +64,6 @@ public class PlaylistPanel extends JPanel {
         table.setForeground(new Color(34,202,237));
         table.setFont(new Font(Font.DIALOG,Font.PLAIN, 16));
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        //        ((DefaultTableCellRenderer)table.getDefaultRenderer(Object.class)).setOpaque(false);
         initTableColumns();
         table.setRowHeight(18);
         addListenerToColumnSelected();
@@ -343,7 +342,7 @@ public class PlaylistPanel extends JPanel {
     public void removeRow(int arrayIndex)
     {
         int rowSelected = table.getSelectedRow();
-        if(table.getValueAt(rowSelected,1).equals(PlaylistHandler.getInstance().getSongsInfo().get(mediaPlayer.getCurrentSongIndex()).getName()))
+        if(table.getValueAt(rowSelected,1).equals(PlaylistHandler.getInstance().getSongsInfo().get(mediaPlayer.getCurrentSongIndex()).getName()) && mediaPlayer.isStopped()==false)
         {
             return;
         }

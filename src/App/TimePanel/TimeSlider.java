@@ -4,10 +4,10 @@ import javax.swing.*;
 import javax.swing.plaf.basic.BasicSliderUI;
 import java.awt.*;
 
-public class CustomizedSliderUI extends BasicSliderUI {
+public class TimeSlider extends BasicSliderUI {
     private int diameter;
     private int trackHeight;
-    public CustomizedSliderUI(JSlider b, int diameter, int trackHeight) {
+    public TimeSlider(JSlider b, int diameter, int trackHeight) {
         super(b);
         this.diameter = diameter;
         this.trackHeight = trackHeight;
