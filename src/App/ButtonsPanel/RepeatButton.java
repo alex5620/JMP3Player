@@ -7,11 +7,15 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 public class RepeatButton extends AbstractButton{
-    public RepeatButton(JMediaPlayer mediaPlayer)
+    private ImageIcon repeatPressedImage;
+    private ImageIcon repeatReleasedImage;
+    RepeatButton(JMediaPlayer mediaPlayer)
     {
         super(mediaPlayer);
         setBounds(15, 7, 83, 79);
-        setIcon(new ImageIcon("images/repeat.png"));
+        repeatPressedImage = new ImageIcon("images/repeat_pressed.png");
+        repeatReleasedImage = new ImageIcon("images/repeat.png");
+        setIcon(repeatReleasedImage);
         setToolTipText("Repeat song");
         addListeners();
     }
@@ -22,18 +26,17 @@ public class RepeatButton extends AbstractButton{
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if(mediaPlayer.isRepeating()==false)
+                if(!mediaPlayer.isRepeating())
                 {
                     mediaPlayer.setRepeat(true);
-                    setIcon(new ImageIcon("images/repeat_pressed.png"));
+                    setIcon(repeatPressedImage);
                 }
                 else
                 {
                     mediaPlayer.setRepeat(false);
-                    setIcon(new ImageIcon("images/repeat.png"));
+                    setIcon(repeatReleasedImage);
                 }
             }
         });
     }
-
 }

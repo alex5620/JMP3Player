@@ -14,6 +14,7 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
+        <option value="Interface" />
         <option value="Class" />
       </list>
     </option>
@@ -29,7 +30,8 @@
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../Pong" />
+    <property name="extract.method.default.visibility" value="private" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../Stuff/Udemy/practice" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -37,7 +39,7 @@
     <property name="node.js.selected.package.eslint" value="(autodetect)" />
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
     <property name="nodejs_package_manager_path" value="npm" />
-    <property name="project.structure.last.edited" value="Libraries" />
+    <property name="project.structure.last.edited" value="Modules" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2" />
     <property name="settings.editor.selected.configurable" value="configurable.group.appearance" />
@@ -127,6 +129,30 @@
       <workItem from="1598205074336" duration="380000" />
       <workItem from="1598212151295" duration="652000" />
       <workItem from="1598249546577" duration="2437000" />
+      <workItem from="1598261831071" duration="935000" />
+      <workItem from="1598262855028" duration="18000" />
+      <workItem from="1598264031778" duration="9000" />
+      <workItem from="1598265645206" duration="1815000" />
+      <workItem from="1598271966216" duration="12491000" />
+      <workItem from="1598337660222" duration="686000" />
+      <workItem from="1598342491522" duration="15000" />
+      <workItem from="1598343884655" duration="212000" />
+      <workItem from="1598351874489" duration="667000" />
+      <workItem from="1598362698192" duration="4476000" />
+      <workItem from="1598419930189" duration="138000" />
+      <workItem from="1598421990953" duration="691000" />
+      <workItem from="1598446965428" duration="9002000" />
+      <workItem from="1598466164006" duration="305000" />
+      <workItem from="1598511311510" duration="715000" />
+      <workItem from="1598531655558" duration="14371000" />
+      <workItem from="1598595310610" duration="2734000" />
+      <workItem from="1598686154679" duration="3517000" />
+      <workItem from="1598695640994" duration="6064000" />
+      <workItem from="1598724456297" duration="8199000" />
+      <workItem from="1598777753998" duration="8567000" />
+      <workItem from="1598795820429" duration="3578000" />
+      <workItem from="1598854687333" duration="629000" />
+      <workItem from="1598877081048" duration="462000" />
     </task>
     <servers />
   </component>

@@ -1,5 +1,6 @@
 package App.CardPanel;
 
+import App.Colors;
 import App.JMediaPlayer;
 import App.SongInformation;
 
@@ -16,76 +17,40 @@ import java.io.File;
 public class PlayingNowPanel extends JPanel implements ActionListener {
     private JMediaPlayer mediaPlayer;
     private JPanel waveformPanel;
-    private AudioInfo audioInfo = null;
-    private Timer timer = new Timer(100, this);
-    private double increment=0;
+    private AudioInfo audioInfo;
+    private Timer timer;
+    private double increment;
     private int channelsNumber;
-    private Color [] colors = {Color.green, new Color(68, 62, 62), Color.yellow, Color.gray, Color.CYAN, Color.WHITE};
+    private Color [] colors = {Color.green, Colors.color68_62_62, Color.yellow, Color.gray, Color.CYAN, Color.WHITE};
     private int currentColor;
 
-    public PlayingNowPanel(JMediaPlayer mediaPlayer)
+    PlayingNowPanel(JMediaPlayer mediaPlayer)
     {
         this.mediaPlayer = mediaPlayer;
-        setBackground(new Color(7,63,86));
+        setBackground(Colors.color7_63_86);
         setLayout(null);
         currentColor = mediaPlayer.getSettingsDatabaseDatabase().getSettingsInformation("color_index");
+        audioInfo = null;
+        timer = new Timer(100, this);
+        increment=0;
         initWaveformPanel();
     }
 
     private void initWaveformPanel()
     {
-//        waveformPanel = new JPanel()
-//        {
-//            @Override
-//            public void paint(Graphics g)
-//            {
-//                g.clearRect(0,0,getWidth(), getHeight());
-//                g.setColor(new Color(7,63,86, 240));
-//                g.fillRect(0, 0, getWidth(), getHeight());
-//
-//                g.setColor(new Color(34,202,237));
-//                g.drawRect(0, 0, getWidth()-1, getHeight()-1);
-//
-//                if(checkIfSongPlaying()==false)
-//                {
-//                    String str="No song playing";
-//                    g.drawString(str, getWidth()/2-g.getFontMetrics().stringWidth(str)/2,
-//                            getHeight()/2);
-//                    return;
-//                }
-//
-//                int oldY = (getHeight() / 2);
-//                g.setColor(colors[currentColor]);
-//                for(int i = 0; i < getWidth();i+=1)
-//                {
-//                    double scaleFactor = 1.0/200;
-//                    double scaledSample=0;
-//                    for(int j=0;j<channelsNumber;++j)
-//                    {
-//                        scaledSample = audioInfo.getChannelsWithSamples()[j][(int)((mediaPlayer.getPlayer().getCurrentTime()
-//                                .toMillis()/100)*increment)+i] * scaleFactor;
-//                    }
-//                    scaledSample/=channelsNumber;
-//                    int y = (int) ((getHeight() / 2) - (scaledSample));
-//                    g.drawLine(i, oldY, i+1, y);
-//                    oldY = y;
-//                }
-//            }
-//        };
         waveformPanel = new JPanel()
         {
             @Override
             public void paint(Graphics g)
             {
                 g.clearRect(0,0,getWidth(), getHeight());
-                g.setColor(new Color(7,63,86, 240));
+                g.setColor(Colors.color7_63_86_240);
                 g.fillRect(0, 0, getWidth(), getHeight());
 
-                if(checkIfSongPlaying()==false)
+                if(!checkIfSongPlaying())
                 {
-                    g.setColor(new Color(34,202,237));
+                    g.setColor(Colors.color34_202_237);
                     g.drawRect(0, 0, getWidth()-1, getHeight()-1);
-
                     String str="No song playing.";
                     g.drawString(str, getWidth()/2-g.getFontMetrics().stringWidth(str)/2,
                             getHeight()/2);
@@ -93,21 +58,19 @@ public class PlayingNowPanel extends JPanel implements ActionListener {
                 }
                 if(audioInfo==null)
                 {
-                    g.setColor(new Color(34,202,237));
+                    g.setColor(Colors.color34_202_237);
                     g.drawRect(0, 0, getWidth()-1, getHeight()-1);
                     String str="No information available.";
                     g.drawString(str, getWidth()/2-g.getFontMetrics().stringWidth(str)/2,
                             getHeight()/2);
                     return;
                 }
-                int oldY = (getHeight() / 2);
                 g.setColor(colors[currentColor]);
                 for(int i = 0; i < getWidth()-33 ;i+=33)
                 {
                     int sum = 0;
                     double scaleFactor = 1.0/200;
                     double scaledSample=0;
-//                    if(i<getWidth()-33) {
                         for (int j = 0; j < channelsNumber; ++j) {
                             for (int k = 0; k < 33; ++k) {
                                 scaledSample = audioInfo.getChannelsWithSamples()[j][(int) ((mediaPlayer.getPlayer().getCurrentTime()
@@ -117,29 +80,12 @@ public class PlayingNowPanel extends JPanel implements ActionListener {
                         }
                         sum /= channelsNumber;
                         int y = ((getHeight() / 2) - (sum));
-//
-//                        g.setColor(colors[currentColor]);
-//                        g.fillRect(i+2, getHeight() - y, 33, y);
-//                        g.setColor(Color.black);
-//                        g.drawRect(i+2, getHeight() - y, 33, y);
-//                        oldY = y;
 
                         for(int j=0; j<y ; ++j)
                         {
                             if(getHeight()-j < (9*getHeight())/10)
                             {
-                                Color color=colors[currentColor];
-                                int red = color.getRed()+((9*getHeight())/10-(getHeight()-j));
-                                if(red > 255)
-                                {
-                                    red=255;
-                                }
-                                int green = color.getGreen()+(-(9*getHeight()/10)+(getHeight()-j));
-                                if(green < 0)
-                                {
-                                    green=0;
-                                }
-                                g.setColor(new Color(red, green, color.getBlue()));
+                                g.setColor(getNewColor(getHeight(), j));
                             }
                             else {
                                 g.setColor(colors[currentColor]);
@@ -148,10 +94,9 @@ public class PlayingNowPanel extends JPanel implements ActionListener {
                         }
                         g.setColor(Color.black);
                         g.drawRect(i+2, getHeight() - y, 33, y);
-                        g.setColor(new Color(34,202,237));
+                        g.setColor(Colors.color34_202_237);
                         g.drawRect(0, 0, getWidth()-1, getHeight()-1);
                         g.drawString("Click to change style", 5,15);
-//                    }
                 }
             }
         };
@@ -159,6 +104,22 @@ public class PlayingNowPanel extends JPanel implements ActionListener {
         waveformPanel.setLayout(null);
         addMouseListenerToWaveformPanel();
         add(waveformPanel);
+    }
+
+    private Color getNewColor(int height, int j)
+    {
+        Color color=colors[currentColor];
+        int red = color.getRed()+((9*height)/10-(height-j));
+        if(red > 255)
+        {
+            red=255;
+        }
+        int green = color.getGreen()+(-(9*height/10)+(height-j));
+        if(green < 0)
+        {
+            green=0;
+        }
+        return new Color(red, green, color.getBlue());
     }
 
     private void addMouseListenerToWaveformPanel()
@@ -174,9 +135,11 @@ public class PlayingNowPanel extends JPanel implements ActionListener {
         });
     }
 
-    public void setAudioToDisplay(AudioInputStream audioInputStream){
+    private void setAudioToDisplay(AudioInputStream audioInputStream){
         audioInfo = new AudioInfo(audioInputStream, mediaPlayer);
-        increment = audioInfo.getChannelsWithSamples()[0].length/(PlaylistHandler.getInstance().getSongsInfo().get(mediaPlayer.getCurrentSongIndex()).getSongMillis()/100);
+        int len = audioInfo.getChannelsWithSamples()[0].length;
+        int milliHundreds = (PlaylistHandler.getInstance().getSongsInfo().get(mediaPlayer.getCurrentSongIndex()).getSongMillis()/100);
+        increment = len/milliHundreds;
         channelsNumber = audioInfo.getChannelsWithSamples().length;
         timer.start();
     }
@@ -188,14 +151,13 @@ public class PlayingNowPanel extends JPanel implements ActionListener {
         }
     }
 
-    public void initWaveform()
+    void initWaveform()
     {
-        try
-        {
         SongInformation song = PlaylistHandler.getInstance().getSongsInfo().get(mediaPlayer.
                 getCurrentSongIndex());
-            File file = new File(song.getPath()+"\\"+song.getName());
-            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(file);
+        File file = new File(song.getPath()+"\\"+song.getName());
+        try(AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(file))
+        {
             setAudioToDisplay(audioInputStream);
         }catch (Exception er)
         {
@@ -210,13 +172,9 @@ public class PlayingNowPanel extends JPanel implements ActionListener {
         audioInfo=null;
     }
 
-    public boolean checkIfSongPlaying()
+    private boolean checkIfSongPlaying()
     {
-        if(mediaPlayer.getPlayer().getCurrentTime().toMillis()==0)
-        {
-            return false;
-        }
-        return true;
+        return mediaPlayer.getPlayer() == null || mediaPlayer.getPlayer().getCurrentTime().toMillis() != 0;
     }
 
     public int getCurrentColor()

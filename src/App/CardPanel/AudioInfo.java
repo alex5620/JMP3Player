@@ -6,45 +6,50 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
 
-public class AudioInfo {
-    private AudioInputStream ais;
-    private int channelsNumber;
+class AudioInfo {
     private int[][] channelsWithSamples;
-    private int samplesNumber;
-    public AudioInfo(AudioInputStream in, JMediaPlayer mediaPlayer)
+    AudioInfo(AudioInputStream ais, JMediaPlayer mediaPlayer) {
+        if (ais.getFormat().getEncoding().toString().equals("MPEG1L3")) {
+            AudioFormat decodedFormat = getDecodedFormat(ais);
+            AudioInputStream decoded_ais = AudioSystem.getAudioInputStream(decodedFormat, ais);
+            int songTimeInMilli = PlaylistHandler.getInstance().getSongsInfo().get(mediaPlayer.getCurrentSongIndex()).getSongMillis();
+            byte[] mybyte = new byte[songTimeInMilli * 300];
+            try {
+                int result = decoded_ais.read(mybyte);
+                mybyte = Arrays.copyOf(mybyte, result);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    ais.close();
+                    decoded_ais.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            getSamples(decodedFormat, mybyte);
+        }
+    }
+
+    private AudioFormat getDecodedFormat(AudioInputStream ais)
     {
-        AudioInputStream din;
-        AudioFormat baseFormat = in.getFormat();
-        AudioFormat decodedFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
+        AudioFormat baseFormat = ais.getFormat();
+        return new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
                 baseFormat.getSampleRate(),
                 16,
                 baseFormat.getChannels(),
                 baseFormat.getChannels() * 2,
                 baseFormat.getSampleRate(),
                 false);
-        din = AudioSystem.getAudioInputStream(decodedFormat, in);
-        channelsNumber=decodedFormat.getChannels();
-        int songTimeInMilli = PlaylistHandler.getInstance().getSongsInfo().get(mediaPlayer.getCurrentSongIndex()).getSongMillis();
-        byte [] mybyte = new byte[songTimeInMilli*300];
-        int result=0;
-        try {
-            result=din.read(mybyte);
-            mybyte=Arrays.copyOf(mybyte, result);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        finally {
-            try {
-                in.close();
-                din.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+    }
 
-        channelsWithSamples = new int[decodedFormat.getChannels()][result/(decodedFormat.getChannels()*2)];
+    private void getSamples(AudioFormat decodedFormat, byte []mybyte)
+    {
+        int channelsNumber = decodedFormat.getChannels();
+        int result = mybyte.length;
+        channelsWithSamples = new int[channelsNumber][result/(decodedFormat.getChannels()*2)];
         int sampleIndex = 0;
 
         for (int t = 0; t < result;) {
@@ -64,45 +69,8 @@ public class AudioInfo {
         return (high << 8) + (low & 0x00ff);
     }
 
-    public int getNumberOfChannels()
-    {
-        return channelsNumber;
-    }
-
-    public int[][] getChannelsWithSamples()
+    int[][] getChannelsWithSamples()
     {
         return channelsWithSamples;
     }
-
-    public int getSamplesNumber()
-    {
-        return samplesNumber;
-    }
 }
-
-//        Folosit la inceput pt fisier wav
-//                this.ais = ais;
-//        try {
-//            samplesNumber = (int)ais.getFrameLength();
-//            int frameSize =  ais.getFormat().getFrameSize();
-//            byte [] bytes = new byte[samplesNumber * frameSize];
-//            ais.read(bytes);
-//
-//            channelsNumber = ais.getFormat().getChannels();
-//            channelsWithSamples = new int[channelsNumber][samplesNumber];
-//            int sampleIndex = 0;
-//
-//            for (int t = 0; t < bytes.length;) {
-//                for (int channel = 0; channel < channelsNumber; channel++) {
-//                    int low = bytes[t];
-//                    t++;
-//                    int high = bytes[t];
-//                    t++;
-//                    int sample = getSixteenBitSample(high, low);
-//                    channelsWithSamples[channel][sampleIndex] = sample;
-//                }
-//                sampleIndex++;
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }

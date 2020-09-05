@@ -1,6 +1,6 @@
 package App.SongNamePanel;
 
-import App.JMediaPlayer;
+import App.Colors;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,18 +15,17 @@ public class MovingPanel extends JPanel implements ActionListener{
     private String songText;
     private int index;
 
-    public MovingPanel(String startingSongName)
+    MovingPanel(String startingSongName)
     {
         songText = startingSongName;
         index = 255 - (songText.length()*6) / 2;
-        // jumatatea panelului
     }
 
     public void paint(Graphics g)
     {
         super.paint(g);
         Graphics2D g2 = (Graphics2D)g;
-        g2.setColor(new Color(34,202,237));
+        g2.setColor(Colors.color34_202_237);
         g2.drawString(songText, index, 22);
         index+=5;
         if(index >= getWidth())
@@ -41,23 +40,23 @@ public class MovingPanel extends JPanel implements ActionListener{
         repaint();
     }
 
-    public void setSongName(String text)
+    void setSongName(String text)
     {
         songText=text;
         index = 255 - (songText.length()*6) / 2;
     }
 
-    public void start()
+    void start()
     {
         timer.start();
     }
 
-    public void stop()
+    void stop()
     {
         timer.stop();
     }
 
-    public void textToCenter()
+    void textToCenter()
     {
         try {
             AffineTransform affinetransform = new AffineTransform();
@@ -72,7 +71,7 @@ public class MovingPanel extends JPanel implements ActionListener{
         }
     }
 
-    public void textToBeginning()
+    void textToBeginning()
     {
         index=10;
     }

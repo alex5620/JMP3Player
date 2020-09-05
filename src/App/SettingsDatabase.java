@@ -4,7 +4,11 @@ import java.sql.*;
 
 public class SettingsDatabase {
     private Connection con;
-    public void getConnection() {
+    SettingsDatabase()
+    {
+        initialize();
+    }
+    private void getConnection() {
         try {
             if (con == null || con.isClosed()) {
                 Class.forName("org.sqlite.JDBC");
@@ -15,7 +19,7 @@ public class SettingsDatabase {
         }
     }
 
-    public void initialize() {
+    private void initialize() {
         try {
             getConnection();
             Statement stmt = con.createStatement();
@@ -50,7 +54,7 @@ public class SettingsDatabase {
         return result;
     }
 
-    public String getCurrentDirectory() {
+    String getCurrentDirectory() {
         String path=null;
         try {
             getConnection();
@@ -97,7 +101,7 @@ public class SettingsDatabase {
         }
     }
 
-    public void closeDatabase() {
+    private void closeDatabase() {
         try {
             if (con != null && con.isClosed() == false) {
                 con.close();

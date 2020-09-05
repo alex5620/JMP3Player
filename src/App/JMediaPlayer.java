@@ -2,7 +2,6 @@ package App;
 
 import App.ButtonsPanel.ButtonsPanel;
 import App.CardPanel.CardPanel;
-import App.CardPanel.PlayingNowPanel;
 import App.CardPanel.PlaylistHandler;
 import App.HeaderPanel.HeaderPanel;
 import App.MenuPanel.MenuPanel;
@@ -24,7 +23,6 @@ public class JMediaPlayer{
     private SongNamePanel songNamePanel;
     private TimePanel timePanel;
     private ButtonsPanel buttonsPanel;
-    private MenuPanel menuPanel;
     private CardPanel cardPanel;
     private PlaylistDatabase playlistDatabase;
     private SettingsDatabase settingsDatabase;
@@ -37,41 +35,59 @@ public class JMediaPlayer{
     private boolean repeat = false;
     private boolean paused = false;
     private boolean stopped = true;
-    private boolean windowCollapsed=false;
     private boolean isEqualizerActive=false;
 
     public JMediaPlayer(String title) {
         com.sun.javafx.application.PlatformImpl.startup(()->{});//just to be able to use javafx
         playlistDatabase = new PlaylistDatabase();
-        playlistDatabase.initialize();
         settingsDatabase = new SettingsDatabase();
-        settingsDatabase.initialize();
         currentDirectory = settingsDatabase.getCurrentDirectory();
         PlaylistHandler.getInstance().loadSongs(this);
         initFrame();
-        SongInformation song = PlaylistHandler.getInstance().getSongsInfo().get(0);
-        songFile=new File(song.getPath()+"\\"+song.getName());
+        loadFirstSong();
         initPanels(title);
         createPlayer();
         currentSongIndex=0;
     }
 
+    private void initFrame()
+    {
+        frame = new JFrame();
+        frame.setResizable(false);
+        frame.setBounds(100, 100, 550, 650);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLocationRelativeTo(null);
+        frame.setUndecorated(true);
+        frame.getContentPane().setLayout(null);
+        frame.getRootPane().setBorder(new LineBorder(Color.BLACK));
+    }
+
+    private void loadFirstSong() {
+        try {
+            SongInformation song = PlaylistHandler.getInstance().getSongsInfo().get(0);
+            songFile = new File(song.getPath() + "\\" + song.getName());
+        }catch (Exception e)
+        {
+            paused=true;
+            stopped=true;
+            songFile = null;
+        }
+    }
+
     public void createPlayer()
     {
-        media = new Media(songFile.toURI().toString());
-        player = new MediaPlayer(media);
-        getPlayer().setVolume(buttonsPanel.getVolumeValue()/100.0);
-        player.setOnEndOfMedia(() ->
-        {
-            initNextSong();
-        });
+        if(songFile!=null) {
+            media = new Media(songFile.toURI().toString());
+            player = new MediaPlayer(media);
+            getPlayer().setVolume(buttonsPanel.getVolumeValueLabel() / 100.0);
+            player.setOnEndOfMedia(this::initNextSong);
+        }
     }
 
     private void initNextSong()
     {
-        if(repeat==false) {
+        if(!repeat) {
             currentSongIndex++;
-            System.out.println(currentSongIndex);
             cardPanel.refreshPlaylistTableCells();
             createPlayerByCurrentIndex();
         }
@@ -115,15 +131,12 @@ public class JMediaPlayer{
         player = new MediaPlayer(media);
         sleepThread();
         player.play();
-        getPlayer().setVolume(buttonsPanel.getVolumeValue()/100.0);
-        reinitMediaPlayer();
-        player.setOnEndOfMedia(() ->
-        {
-            initNextSong();
-        });
+        getPlayer().setVolume(buttonsPanel.getVolumeValueLabel()/100.0);
+        reinitSongInfo();
+        player.setOnEndOfMedia(this::initNextSong);
     }
 
-    public void reinitMediaPlayer()
+    private void reinitSongInfo()
     {
         updateSongName();
         songNameToBeginning();
@@ -137,29 +150,17 @@ public class JMediaPlayer{
         }
     }
 
-    private void initFrame()
-    {
-        frame = new JFrame();
-        frame.setResizable(false);
-        frame.setBounds(100, 100, 550, 650);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLocationRelativeTo(null);
-        frame.setUndecorated(true);
-        frame.getContentPane().setLayout(null);
-        frame.getRootPane().setBorder(new LineBorder(Color.BLACK));
-    }
-
     private void initPanels(String title)
     {
         headerPanel = new HeaderPanel(this, title);
         frame.getContentPane().add(headerPanel);
-        songNamePanel = new SongNamePanel();
+        songNamePanel = new SongNamePanel(songFile);
         frame.getContentPane().add(songNamePanel);
         timePanel = new TimePanel(this);
         frame.getContentPane().add(timePanel);
         buttonsPanel = new ButtonsPanel(this);
         frame.getContentPane().add(buttonsPanel);
-        menuPanel = new MenuPanel(this);
+        MenuPanel menuPanel = new MenuPanel(this);
         frame.getContentPane().add(menuPanel);
         cardPanel = new CardPanel(this);
         frame.getContentPane().add(cardPanel);
@@ -170,7 +171,7 @@ public class JMediaPlayer{
         cardPanel.initWaveform();
     }
 
-    public void makeVisible()
+    void makeVisible()
     {
         frame.setVisible(true);
     }
@@ -197,11 +198,7 @@ public class JMediaPlayer{
 
     public void setRepeat(boolean repeat)
     {
-        if (repeat) {
-            this.repeat = true;
-        } else {
-            this.repeat = false;
-        }
+        this.repeat = repeat;
     }
 
     public void setSongFile(File songFile)
@@ -219,11 +216,6 @@ public class JMediaPlayer{
         isEqualizerActive = isActive;
     }
 
-    public boolean isEqualizerActive()
-    {
-        return isEqualizerActive;
-    }
-
     public void updateSongName()
     {
         songNamePanel.setSongName(PlaylistHandler.getInstance().getSongsInfo().
@@ -238,20 +230,16 @@ public class JMediaPlayer{
     public void resetCurrentIndex()
     {
         currentSongIndex=0;
-        System.out.println(currentSongIndex);
     }
 
     public void decreaseCurrentSongIndex()
     {
         --currentSongIndex;
-        System.out.println(currentSongIndex);
-
     }
 
     public void updateCurrentSongIndex()
     {
         currentSongIndex = cardPanel.getPlaylistPanel().getIndexOfSelectedRow()-1;
-        System.out.println(currentSongIndex);
     }
 
     public JFrame getFrame()
@@ -262,11 +250,6 @@ public class JMediaPlayer{
     public ButtonsPanel getButtonsPanel()
     {
         return buttonsPanel;
-    }
-
-    public String getSongName()
-    {
-        return songFile.getName();
     }
 
     public String getCurrentDirectory()
@@ -314,7 +297,7 @@ public class JMediaPlayer{
         return timePanel;
     }
 
-    public void sleepThread()
+    private void sleepThread()
     {
         try {
             Thread.sleep(70);
@@ -342,6 +325,16 @@ public class JMediaPlayer{
     public int getCurrentSongIndex()
     {
         return currentSongIndex;
+    }
+
+    public void updateFrequencies()
+    {
+        headerPanel.updateFrequencies();
+    }
+
+    public boolean isEqualizerActive()
+    {
+        return isEqualizerActive;
     }
 }
 

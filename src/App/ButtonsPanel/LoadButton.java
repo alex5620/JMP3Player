@@ -11,15 +11,18 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 
 
 public class LoadButton extends AbstractButton {
-    public LoadButton(JMediaPlayer mediaPlayer)
+    private ImageIcon buttonPressedImage;
+    private ImageIcon buttonReleasedImage;
+    LoadButton(JMediaPlayer mediaPlayer)
     {
         super(mediaPlayer);
         setBounds(320, 15, 62, 60);
-        setIcon(new ImageIcon("images/open.png"));
+        buttonPressedImage = new ImageIcon("images/open_pressed.png");
+        buttonReleasedImage = new ImageIcon("images/open.png");
+        setIcon(buttonReleasedImage);
         setToolTipText("Load new playlist");
         addListeners();
     }
@@ -30,17 +33,15 @@ public class LoadButton extends AbstractButton {
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                setIcon(new ImageIcon("images/open_pressed.png"));
-                JFileChooser openFileChooser = new MyJFileChooser(mediaPlayer.getCurrentDirectory());
-                openFileChooser.setMultiSelectionEnabled(true);
-                openFileChooser.setFileFilter(new FileTypeFilter(".mp3", "Open MP3 Files Only!"));
-                openFileChooser.showOpenDialog(null);
-                File[] files = openFileChooser.getSelectedFiles();
+                setIcon(buttonPressedImage);
+                File[] files = createFileChooser();
                 if(files.length>0)
                 {
                     ArrayList<SongInformation> info = PlaylistHandler.getInstance().addNewPlaylistInformation(files, true);
                     mediaPlayer.getCardPanel().addValuesToPlaylistTable(info);
-                    mediaPlayer.getPlayer().stop();
+                    if(mediaPlayer.getPlayer()!=null) {
+                        mediaPlayer.getPlayer().stop();
+                    }
                     File songFile = files[0];
                     mediaPlayer.getCardPanel().selectFirstRow();
                     mediaPlayer.resetCurrentIndex();
@@ -60,9 +61,17 @@ public class LoadButton extends AbstractButton {
                     mediaPlayer.setSongTime();
                     mediaPlayer.initWaveform();
                 }
-                setIcon(new ImageIcon("images/open.png"));
+                setIcon(buttonReleasedImage);
             }
         });
     }
 
+    private File[] createFileChooser()
+    {
+        JFileChooser openFileChooser = new MyJFileChooser(mediaPlayer.getCurrentDirectory());
+        openFileChooser.setMultiSelectionEnabled(true);
+        openFileChooser.setFileFilter(new FileTypeFilter(".mp3", "Open MP3 Files Only!"));
+        openFileChooser.showOpenDialog(null);
+        return openFileChooser.getSelectedFiles();
+    }
 }

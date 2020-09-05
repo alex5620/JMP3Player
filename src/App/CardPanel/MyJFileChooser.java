@@ -31,14 +31,15 @@ public class MyJFileChooser extends JFileChooser {
 
             try {
                 UIManager.setLookAndFeel(old);
-            } catch (UnsupportedLookAndFeelException ignored) {
-            } // shouldn't get here
+            } catch (UnsupportedLookAndFeelException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     private static FilePane findFilePane(Container parent) {
         for (Component comp : parent.getComponents()) {
-            if (FilePane.class.isInstance(comp)) {
+            if (comp instanceof FilePane) {
                 return (FilePane) comp;
             }
             if (comp instanceof Container) {
@@ -51,7 +52,6 @@ public class MyJFileChooser extends JFileChooser {
                 }
             }
         }
-
         return null;
     }
 }

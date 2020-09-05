@@ -1,5 +1,7 @@
 package App.TimePanel;
 
+import App.Colors;
+
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicSliderUI;
 import java.awt.*;
@@ -28,18 +30,17 @@ public class TimeSlider extends BasicSliderUI {
 
     @Override
     protected Color getFocusColor(){
-        return new Color(7,63,86);
+        return Colors.color7_63_86;
     }
 
     @Override
     public void paintTrack(Graphics g) {
-
         int cy = (trackRect.height / 2) - 2;
         int cw = trackRect.width;
 
         g.translate(trackRect.x, trackRect.y + cy);
 
-        g.setColor(new Color(34,202,237));
+        g.setColor(Colors.color34_202_237);
         g.fillRect(1,0, thumbRect.x-1, trackHeight);
         g.setColor(Color.black);
         g.fillRect(thumbRect.x, 0, cw -2 -thumbRect.x, trackHeight);
@@ -50,16 +51,7 @@ public class TimeSlider extends BasicSliderUI {
     @Override
     public void paintThumb(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
-        g2d.setColor(new Color(34,202,237));
+        g2d.setColor(Colors.color34_202_237);
         g2d.fillOval(thumbRect.x, thumbRect.y, diameter, diameter);
     }
-
-//    @Override
-//    protected TrackListener createTrackListener(JSlider slider) {
-//        return new TrackListener() {
-//            @Override public boolean shouldScroll(int direction) {
-//                return false;
-//            }
-//        };
-//    }
 }

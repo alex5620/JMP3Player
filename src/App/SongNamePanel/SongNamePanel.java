@@ -1,36 +1,46 @@
 package App.SongNamePanel;
 
 import App.CardPanel.PlaylistHandler;
+import App.Colors;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
-import java.awt.*;
-
+import java.io.File;
 public class SongNamePanel extends JPanel{
-    private JPanel borderPanel;
     private MovingPanel textPanel;
-    public SongNamePanel()
+    public SongNamePanel(File songFile)
     {
         setBounds(0, 44, 550, 50);
-        setBackground(new Color(7,63,86));
+        setBackground(Colors.color7_63_86);
         setLayout(null);
-        initTextPanel(PlaylistHandler.getInstance().getSongsInfo().get(0).getName());
+        setInitialText(songFile);
         initBorderPanel();
+    }
+
+    private void setInitialText(File songFile)
+    {
+        if(songFile!=null) {
+            initTextPanel(PlaylistHandler.getInstance().getSongsInfo().get(0).getName());
+        }
+        else
+        {
+            initTextPanel("No song available.");
+        }
     }
 
     private void initBorderPanel()
     {
-        borderPanel = new JPanel();
+        JPanel borderPanel = new JPanel();
         borderPanel.setBounds(10, 8, 530, 34);
-        borderPanel.setBackground(new Color(7,63,86));
-        borderPanel.setBorder(new LineBorder(new Color(34, 202, 237)));
+        borderPanel.setBackground(Colors.color7_63_86);
+        borderPanel.setBorder(new LineBorder(Colors.color34_202_237));
         add(borderPanel);
     }
 
     private void initTextPanel(String startingSongName)
     {
         textPanel = new MovingPanel(startingSongName);
-        textPanel.setBackground(new Color(7,63,86));
+        textPanel.setBackground(Colors.color7_63_86);
         textPanel.setBounds(15, 8, 510, 34);
         textPanel.setOpaque(false);
         textPanel.setLayout(null);

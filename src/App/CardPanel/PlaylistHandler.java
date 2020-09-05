@@ -42,7 +42,7 @@ public class PlaylistHandler {
                 while(player.getStatus() != MediaPlayer.Status.READY){
                     Thread.sleep(10);
                 }
-                if (resetExistingItems || checkIfSongExists(file.getName())==false) {
+                if (resetExistingItems || !checkIfSongExists(file.getName())) {
                     songs.add(new SongInformation(file.getName(), file.getParent(),
                             (int) player.getTotalDuration().toMillis()));
                 }
@@ -68,19 +68,21 @@ public class PlaylistHandler {
 
     public String getFormattedString(double currentTimeSeconds)
     {
-        String formattedString="";
-        int minutes = (((int)(currentTimeSeconds)/60));
-        formattedString+=minutes+":";
+        StringBuilder formattedString=new StringBuilder();
+        int hours= (int)currentTimeSeconds/3600;
+        int minutes = (((int)(currentTimeSeconds)/60)%60);
         int seconds= (((int)currentTimeSeconds)%60);
-        if(seconds >= 10)
+        if(hours>0)
         {
-            formattedString+=seconds;
+            formattedString.append((int)currentTimeSeconds/3600).append(":");
+            if(minutes<10)
+            {
+                formattedString.append("0");
+            }
         }
-        else
-        {
-            formattedString+="0"+seconds;
-        }
-        return formattedString;
+        formattedString.append(minutes).append(":");
+        formattedString.append(String.format("%02d", seconds));
+        return formattedString.toString();
     }
 
     public void saveSongs(JMediaPlayer mediaPlayer)
@@ -100,7 +102,7 @@ public class PlaylistHandler {
         songs=database.getData();
     }
 
-    public void removeSong(int index)
+    void removeSong(int index)
     {
         songs.remove(index);
     }
@@ -108,11 +110,6 @@ public class PlaylistHandler {
     public ArrayList<SongInformation> getSongsInfo()
     {
         return new ArrayList<>(songs);
-    }
-
-    public int getSongMilliseconds(int index)
-    {
-        return songs.get(index).getSongMillis();
     }
 
     public int getSongsNumber()

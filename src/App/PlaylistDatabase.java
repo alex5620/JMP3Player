@@ -7,6 +7,10 @@ import java.io.File;
 
 public class PlaylistDatabase {
     private Connection con;
+    PlaylistDatabase()
+    {
+        initialize();
+    }
     public void getConnection() {
         try {
             if (con == null || con.isClosed()) {
@@ -19,7 +23,8 @@ public class PlaylistDatabase {
             e.printStackTrace();
         }
     }
-    public void initialize() {
+
+    private void initialize() {
         try {
             getConnection();
             Statement stmt = con.createStatement();
@@ -36,6 +41,7 @@ public class PlaylistDatabase {
             closeDatabase();
         }
     }
+
     public ArrayList<SongInformation> getData() {
         try {
             getConnection();
@@ -61,6 +67,7 @@ public class PlaylistDatabase {
             closeDatabase();
         }
     }
+
     public void addSong(String name, String path, int millis) {
         try {
             PreparedStatement prep = con.prepareStatement("INSERT INTO playlist values(?,?,?);");

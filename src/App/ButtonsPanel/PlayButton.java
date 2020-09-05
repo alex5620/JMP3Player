@@ -7,11 +7,15 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 public class PlayButton extends AbstractButton {
-    public PlayButton(JMediaPlayer mediaPlayer)
+    private ImageIcon playPressedImage;
+    private ImageIcon playReleasedImage;
+    PlayButton(JMediaPlayer mediaPlayer)
     {
         super(mediaPlayer);
         setBounds(135, 0, 120, 90);
-        setIcon(new ImageIcon("images/play.png"));
+        playPressedImage = new ImageIcon("images/play_pressed.png");
+        playReleasedImage = new ImageIcon("images/play.png");
+        setIcon(playReleasedImage);
         addListeners();
     }
 
@@ -21,33 +25,49 @@ public class PlayButton extends AbstractButton {
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                setIcon(new ImageIcon("images/play_pressed.png"));
+                setIcon(playPressedImage);
                 if (mediaPlayer.getCardPanel().getPlaylistPanel().getRowSelected() != -1) {
                     mediaPlayer.setStopped(false);
                     if(mediaPlayer.isPaused())
                     {
-                        mediaPlayer.setPaused(false);
-                        mediaPlayer.getSongNamePanel().startMovingText();
-                        mediaPlayer.getPlayer().play();
+                        handleMediaPlayerIsPaused();
                         return;
                     }
-                    mediaPlayer.setPaused(false);
-                    mediaPlayer.songNameToBeginning();
-                    mediaPlayer.updateCurrentSongIndex();
-                    mediaPlayer.createPlayerByCurrentIndex();
-                    mediaPlayer.getCardPanel().refreshPlaylistTableCells();
+                    playSelectedSong();
                 }
                 else
                 {
-                    mediaPlayer.getSongNamePanel().setSongName("No sound selected.");
-                    mediaPlayer.stopMovingText();
-                    mediaPlayer.getSongNamePanel().redraw();
+                    handleNoColumnSelected();
                 }
             }
             @Override
             public void mouseReleased(MouseEvent e) {
-                setIcon(new ImageIcon("images/play.png"));
+                setIcon(playReleasedImage);
             }
         });
+    }
+
+    private void handleMediaPlayerIsPaused()
+    {
+        mediaPlayer.setPaused(false);
+        mediaPlayer.getSongNamePanel().startMovingText();
+        mediaPlayer.getPlayer().play();
+    }
+
+    private void playSelectedSong()
+    {
+        mediaPlayer.setPaused(false);
+        mediaPlayer.songNameToBeginning();
+        mediaPlayer.updateCurrentSongIndex();
+        mediaPlayer.createPlayerByCurrentIndex();
+        mediaPlayer.getCardPanel().refreshPlaylistTableCells();
+    }
+
+    private void handleNoColumnSelected() {
+        if (mediaPlayer.isStopped() == true) {
+            mediaPlayer.getSongNamePanel().setSongName("No sound selected.");
+            mediaPlayer.stopMovingText();
+            mediaPlayer.getSongNamePanel().redraw();
+        }
     }
 }
